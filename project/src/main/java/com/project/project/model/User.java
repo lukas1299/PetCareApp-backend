@@ -1,12 +1,14 @@
 package com.project.project.model;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
 @Table(name = "users")
+@RequiredArgsConstructor
 @AllArgsConstructor
 public class User {
     @Id
@@ -22,9 +24,6 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public User() {
     }
 
     public UUID getId() {

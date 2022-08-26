@@ -3,7 +3,6 @@ package com.project.project.controller;
 import com.project.project.model.User;
 import com.project.project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

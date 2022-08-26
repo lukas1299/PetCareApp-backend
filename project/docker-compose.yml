@@ -4,13 +4,13 @@ services:
     image: postgres:14.1-alpine
     restart: always
     environment:
-      - DB_NAME=db
+      - POSTGRES_DB=EngineeringWork
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - PGDATA=libs/postgresql/data/pgdata
     ports:
       - '5432:5432'
     volumes:
-      - db:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
 volumes:
-  db:
-    driver: local
+  pgdata:
