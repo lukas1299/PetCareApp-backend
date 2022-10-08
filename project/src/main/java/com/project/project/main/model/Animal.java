@@ -1,28 +1,24 @@
-package com.project.project.model;
+package com.project.project.main.model;
 
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
-import java.util.UUID;
 
 @Entity
+@Builder
 @Table(name = "animals")
-@RequiredArgsConstructor
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Animal {
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private UUID id;
+    private Long id;
 
     private String name;
     private AnimalType type;
     private int age;
 
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
 }
