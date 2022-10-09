@@ -47,7 +47,7 @@ public class PostController {
     public ResponseEntity<Post> realizeLikePost(@PathVariable Long id){
 
         //TODO get logged user
-        var user = userRepository.findById(UUID.fromString("8c0797b6-d020-42f2-87a7-c9a3f0eb0e21")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
+        var user = userRepository.findById(UUID.fromString("8355fa25-d7c4-4963-9704-6eab27553e8d")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
         var post = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Post does not exist"));
 
         return ResponseEntity.ok(postService.realizeLikePost(post, user));
@@ -56,7 +56,7 @@ public class PostController {
     @PostMapping("/dislike/{id}")
     public ResponseEntity<Post> realizeDislikePost(@PathVariable Long id){
 
-        var user = userRepository.findById(UUID.fromString("8c0797b6-d020-42f2-87a7-c9a3f0eb0e21")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
+        var user = userRepository.findById(UUID.fromString("8355fa25-d7c4-4963-9704-6eab27553e8d")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
         var post = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Post does not exist"));
         return ResponseEntity.ok(postService.realizeDislikePost(post, user));
     }

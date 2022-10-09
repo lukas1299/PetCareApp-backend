@@ -2,6 +2,7 @@ package com.project.project.main.model;
 
 //import com.project.project.registration.UserRequest;
 import com.project.project.forum.model.Post;
+import com.project.project.forum.model.Topic;
 import lombok.*;
 
 import javax.persistence.*;
@@ -32,13 +33,14 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Post> assessedPosts;
 
+    @OneToMany(mappedBy = "user")
+    private List<Topic> topics;
 
-//    public static User fromDto(UserRequest userRequest){
-//        return User.builder()
-//                .email(userRequest.email().toLowerCase())
-//                .username(userRequest.username().toLowerCase())
-//                .password(userRequest.password())
-//                .build();
-//    }
-
+    public static User fromDto(UserRequest userRequest){
+        return User.builder()
+                .email(userRequest.email().toLowerCase())
+                .username(userRequest.username().toLowerCase())
+                .password(userRequest.password())
+                .build();
+    }
 }
