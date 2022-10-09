@@ -1,5 +1,7 @@
 package com.project.project.forum.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.project.project.main.model.User;
 import lombok.*;
 
 import javax.persistence.*;
@@ -24,5 +26,10 @@ public class Topic {
 
     @OneToMany(mappedBy = "topic")
     private List<Post> posts;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
 
 }

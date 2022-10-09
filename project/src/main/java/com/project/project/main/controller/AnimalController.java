@@ -1,4 +1,4 @@
-package com.project.project.controller;
+package com.project.project.main.controller;
 
 import com.project.project.main.model.Animal;
 import com.project.project.main.model.RequestAnimal;
