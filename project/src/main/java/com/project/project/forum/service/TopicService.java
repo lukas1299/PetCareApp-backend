@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +23,9 @@ public class TopicService {
         LocalDateTime localDateTime = LocalDateTime.now();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         topic.setCreationDate(localDateTime.format(format));
-        topic.setTitle(requestTopic.message());
+        topic.setTitle(requestTopic.title());
+        topic.setDescription(requestTopic.description());
+        topic.setTopicCategory(requestTopic.topicCategory());
 
         var topicList = user.getTopics();
         topic.setUser(user);

@@ -22,6 +22,10 @@ public class Topic {
     private Long id;
 
     private String title;
+
+    @Column(name = "topicCategory")
+    private TopicCategory topicCategory;
+    private String description;
     private String creationDate;
 
     @OneToMany(mappedBy = "topic")

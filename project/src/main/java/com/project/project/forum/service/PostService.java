@@ -38,33 +38,29 @@ public class PostService {
     }
 
     public Topic createPost(Long topicId, RequestPost requestPost){
-        var topic = topicRepository.findById(topicId);
-        Topic newTopic;
-
+        var topic = topicRepository.findById(topicId).orElseThrow(() -> new EntityNotFoundException("Topic does not exist"));
+        //TODO test
         LocalDateTime localDateTime = LocalDateTime.now();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
-        if(topic.isPresent()){
-            newTopic = topic.get();
-        } else {
-            throw new EntityNotFoundException("Topic does not exist");
-        }
-
         var post = buildPost(requestPost);
 
-        post.setTopic(newTopic);
+        post.setTopic(topic);
         post.setPostCreationDate(localDateTime.format(format));
         postRepository.save(post);
 
-        var postList = newTopic.getPosts();
+        var postList = topic.getPosts();
 
-        if(postList.size() == 0){
+        if(postList.isEmpty()){
             var newPostsList = new ArrayList<Post>();
             newPostsList.add(post);
-            newTopic.setPosts(newPostsList);
+            topic.setPosts(newPostsList);
+        }else {
+            postList.add(post);
+            topic.setPosts(postList);
         }
 
-        return topicRepository.save(newTopic);
+        return topicRepository.save(topic);
     }
     public Post realizeLikePost(Post post, User user) {
 
