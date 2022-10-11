@@ -1,6 +1,7 @@
 package com.project.project.main.model;
 
 //import com.project.project.registration.UserRequest;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.project.forum.model.Post;
 import com.project.project.forum.model.Topic;
 import lombok.*;
@@ -36,8 +37,12 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Topic> topics;
 
+    @OneToMany(mappedBy = "user")
+    private List<Animal> animals;
+
     public static User fromDto(UserRequest userRequest){
         return User.builder()
+                .id(UUID.randomUUID())
                 .email(userRequest.email().toLowerCase())
                 .username(userRequest.username().toLowerCase())
                 .password(userRequest.password())

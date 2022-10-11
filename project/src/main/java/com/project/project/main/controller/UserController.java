@@ -20,7 +20,7 @@ public class UserController {
 
     private final UserRepository userRepository;
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<User>> getAllUsers(){
         return ResponseEntity.ok(userRepository.findAll());
     }
