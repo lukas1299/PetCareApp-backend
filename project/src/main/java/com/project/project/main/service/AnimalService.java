@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +18,7 @@ public class AnimalService {
     private final UserRepository userRepository;
     private final AnimalRepository animalRepository;
 
-    public Animal createAnimal(AnimalRequest animalRequest, User user){
+    public Animal createAnimal(AnimalRequest animalRequest, User user) {
 
         var animal = new Animal();
         animal.setName(animalRequest.name());
@@ -29,7 +30,7 @@ public class AnimalService {
 
         var userAnimalsList = user.getAnimals();
 
-        if(userAnimalsList.size() == 0){
+        if (userAnimalsList.size() == 0) {
             var newUserAnimalsList = new ArrayList<Animal>();
             newUserAnimalsList.add(animal);
             user.setAnimals(newUserAnimalsList);
@@ -43,15 +44,16 @@ public class AnimalService {
     public Event addEventToAnimal(Animal animal, EventRequest eventRequest) {
         Event event = Event.fromDto(eventRequest);
 
+        event.setDate(new Date(System.currentTimeMillis()));
         event.setAnimal(animal);
+
         var eventList = animal.getEvents();
 
-        if(eventList.isEmpty()){
-
+        if (eventList.isEmpty()) {
             var newEventList = new ArrayList<Event>();
             newEventList.add(event);
             animal.setEvents(newEventList);
-        }else {
+        } else {
             eventList.add(event);
             animal.setEvents(eventList);
         }

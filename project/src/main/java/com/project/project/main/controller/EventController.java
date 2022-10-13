@@ -2,12 +2,10 @@ package com.project.project.main.controller;
 
 import com.project.project.main.model.Event;
 import com.project.project.main.repository.EventRepository;
+import com.project.project.main.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -17,6 +15,8 @@ import java.util.List;
 public class EventController {
 
     private final EventRepository eventRepository;
+    private final EventService eventService;
+
 
     @GetMapping
     public ResponseEntity<List<Event>> getAllEvent(){
@@ -25,6 +25,15 @@ public class EventController {
         return ResponseEntity.ok(events);
     }
 
+    @GetMapping("/{id}/animals")
+    public ResponseEntity<List<Event>> getEventsByAnimal(@PathVariable Long id){
+        var events = eventRepository.findByAnimalId(id);
+        return ResponseEntity.ok(events);
+    }
 
-
+    @GetMapping("{id}/animals/{year}/event")
+    public ResponseEntity<List<Event>> getEventByYear(@PathVariable Long id, @PathVariable int year){
+        var events = eventService.getEventByYear(id, year);
+        return ResponseEntity.ok(events);
+    }
 }
