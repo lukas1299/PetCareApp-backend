@@ -26,27 +26,25 @@ public class AnimalController {
     private final AnimalService animalService;
 
     @GetMapping
-    public ResponseEntity<List<Animal>> getAnimals(){
+    public ResponseEntity<List<Animal>> getAnimals() {
         return ResponseEntity.ok(animalRepository.findAll());
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Animal> createAnimal(@RequestBody AnimalRequest requestAnimal){
+    public ResponseEntity<Animal> createAnimal(@RequestBody AnimalRequest requestAnimal) {
 
         //TODO change to logged user
         var user = userRepository.findById(UUID.fromString("4faae376-fbd2-4f25-9af5-4b89924eadd6")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
         var animal = animalService.createAnimal(requestAnimal, user);
-
         return new ResponseEntity<>(animalRepository.save(animal), HttpStatus.CREATED);
     }
 
     @PostMapping("/events/add/{id}")
-    public ResponseEntity<Event> addEvent(@PathVariable Long id, @RequestBody EventRequest eventRequest){
+    public ResponseEntity<Event> addEvent(@PathVariable Long id, @RequestBody EventRequest eventRequest) {
 
-            var animal = animalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
-            var event = animalService.addEventToAnimal(animal, eventRequest);
-
-            return ResponseEntity.ok(event);
+        var animal = animalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
+        var event = animalService.addEventToAnimal(animal, eventRequest);
+        return ResponseEntity.ok(event);
     }
 
 }
