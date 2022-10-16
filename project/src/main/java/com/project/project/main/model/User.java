@@ -1,13 +1,14 @@
 package com.project.project.main.model;
 
-//import com.project.project.registration.UserRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.project.forum.model.Post;
 import com.project.project.forum.model.Topic;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -40,7 +41,20 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Animal> animals;
 
-    public static User fromDto(UserRequest userRequest){
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "profile_id", referencedColumnName = "id")
+    @JsonIgnore
+    private Profile profile;
+
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            }, mappedBy = "friends")
+    @JsonIgnore
+    private Set<Profile> profiles = new HashSet<>();
+
+    public static User fromDto(UserRequest userRequest) {
         return User.builder()
                 .id(UUID.randomUUID())
                 .email(userRequest.email().toLowerCase())

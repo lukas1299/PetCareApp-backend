@@ -1,5 +1,6 @@
 package com.project.project.main.controller;
 
+import com.project.project.main.exception.UserNotFoundException;
 import com.project.project.main.model.Animal;
 import com.project.project.main.model.AnimalRequest;
 import com.project.project.main.model.Event;
@@ -34,7 +35,7 @@ public class AnimalController {
     public ResponseEntity<Animal> createAnimal(@RequestBody AnimalRequest requestAnimal) {
 
         //TODO change to logged user
-        var user = userRepository.findById(UUID.fromString("4faae376-fbd2-4f25-9af5-4b89924eadd6")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
+        var user = userRepository.findById(UUID.fromString("a30dbb0b-5068-40ae-9f4c-c358a944e7e1")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
         var animal = animalService.createAnimal(requestAnimal, user);
         return new ResponseEntity<>(animalRepository.save(animal), HttpStatus.CREATED);
     }
@@ -46,5 +47,4 @@ public class AnimalController {
         var event = animalService.addEventToAnimal(animal, eventRequest);
         return ResponseEntity.ok(event);
     }
-
 }
