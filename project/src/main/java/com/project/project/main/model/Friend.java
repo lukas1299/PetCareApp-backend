@@ -14,7 +14,6 @@ import java.util.UUID;
 public class Friend {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID id;
 
     private UUID profile_id;

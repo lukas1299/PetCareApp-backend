@@ -1,6 +1,4 @@
 package com.project.project.main.model;
 
-import java.util.Date;
-
-public record EventRequest(String name, Date data, EventType eventType) {
+public record EventRequest(String animalName, String name, EventType eventType) {
 }

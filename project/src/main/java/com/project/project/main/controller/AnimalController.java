@@ -1,6 +1,5 @@
 package com.project.project.main.controller;
 
-import com.project.project.main.exception.UserNotFoundException;
 import com.project.project.main.model.Animal;
 import com.project.project.main.model.AnimalRequest;
 import com.project.project.main.model.Event;
@@ -35,16 +34,16 @@ public class AnimalController {
     public ResponseEntity<Animal> createAnimal(@RequestBody AnimalRequest requestAnimal) {
 
         //TODO change to logged user
-        var user = userRepository.findById(UUID.fromString("a30dbb0b-5068-40ae-9f4c-c358a944e7e1")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
+        var user = userRepository.findById(UUID.fromString("4c6ad267-3b13-48d7-80b5-5d603acf66f8")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
         var animal = animalService.createAnimal(requestAnimal, user);
-        return new ResponseEntity<>(animalRepository.save(animal), HttpStatus.CREATED);
+        return new ResponseEntity<>(animal, HttpStatus.CREATED);
     }
 
-    @PostMapping("/events/add/{id}")
-    public ResponseEntity<Event> addEvent(@PathVariable Long id, @RequestBody EventRequest eventRequest) {
+    @PostMapping("/events/add")
+    public ResponseEntity<Event> addEvent(@RequestBody EventRequest eventRequest) {
 
-        var animal = animalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
+        var animal = animalRepository.findByName(eventRequest.animalName()).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
         var event = animalService.addEventToAnimal(animal, eventRequest);
-        return ResponseEntity.ok(event);
+        return new ResponseEntity<>(event, HttpStatus.CREATED);
     }
 }

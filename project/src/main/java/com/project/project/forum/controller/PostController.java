@@ -24,31 +24,32 @@ public class PostController {
     private final PostService postService;
     private final UserRepository userRepository;
 
-    @GetMapping
-    public ResponseEntity<List<Post>> getAllPosts(){
+    @GetMapping("/all")
+    public ResponseEntity<List<Post>> getAllPosts() {
         return ResponseEntity.ok(postRepository.findAll());
     }
 
     @GetMapping("/topic/{id}")
-    public ResponseEntity<List<Post>> getAllPostsByTopic(@PathVariable Long id){
+    public ResponseEntity<List<Post>> getAllPostsByTopic(@PathVariable UUID id) {
 
         return ResponseEntity.ok(postService.getPostsByTopic(id));
     }
+
     @GetMapping("/me")
-    public ResponseEntity<List<Post>> getMePosts(){
+    public ResponseEntity<List<Post>> getMePosts() {
         //TODO change to logged user
-        var user = userRepository.findById(UUID.fromString("ecc5f51f-788b-47e2-99c8-9710e78323cb")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
+        var user = userRepository.findById(UUID.fromString("71ce1069-d0ec-44e1-a497-84ad4b1ce603")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
         return ResponseEntity.ok(postRepository.findByUser(user));
     }
 
     @PostMapping("/add/{topicId}")
-    public ResponseEntity<Topic> createPost(@PathVariable Long topicId, @RequestBody RequestPost requestPost){
+    public ResponseEntity<Topic> createPost(@PathVariable UUID topicId, @RequestBody RequestPost requestPost) {
 
         return new ResponseEntity<>(postService.createPost(topicId, requestPost), HttpStatus.CREATED);
     }
 
     @PostMapping("/like/{id}")
-    public ResponseEntity<Post> realizeLikePost(@PathVariable Long id){
+    public ResponseEntity<Post> realizeLikePost(@PathVariable UUID id) {
 
         //TODO get logged user
         var user = userRepository.findById(UUID.fromString("ecc5f51f-788b-47e2-99c8-9710e78323cb")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
@@ -58,7 +59,7 @@ public class PostController {
     }
 
     @PostMapping("/dislike/{id}")
-    public ResponseEntity<Post> realizeDislikePost(@PathVariable Long id){
+    public ResponseEntity<Post> realizeDislikePost(@PathVariable UUID id) {
 
         //TODO get logged user
         var user = userRepository.findById(UUID.fromString("ecc5f51f-788b-47e2-99c8-9710e78323cb")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));

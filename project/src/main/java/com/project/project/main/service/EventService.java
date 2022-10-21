@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +17,7 @@ public class EventService {
 
     private final EventRepository eventRepository;
 
-    public List<Event> getEventByYear(Long id, int year) {
+    public List<Event> getEventByYear(UUID id, int year) {
 
         var eventList = eventRepository.findByAnimalId(id);
         List<Event> finalEventsList = new ArrayList<>();
@@ -40,7 +41,7 @@ public class EventService {
         return finalEventsList;
     }
 
-    public List<Event> getEventByMonth(Long id, int month){
+    public List<Event> getEventByMonth(UUID id, int month){
 
         var eventList = eventRepository.findByAnimalId(id);
         List<Event> finalEventsList = new ArrayList<>();

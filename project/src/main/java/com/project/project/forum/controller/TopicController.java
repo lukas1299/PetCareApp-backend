@@ -33,10 +33,11 @@ public class TopicController {
     public ResponseEntity<Topic> createTopic(@RequestBody RequestTopic requestTopic){
 
         //TODO get logged user
-        var user = userRepository.findById(UUID.fromString("ecc5f51f-788b-47e2-99c8-9710e78323cb")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
+        var user = userRepository.findById(UUID.fromString("71ce1069-d0ec-44e1-a497-84ad4b1ce603")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
+
         var topic = topicService.createTopic(user, requestTopic);
 
-        return new ResponseEntity<>(topicRepository.save(topic), HttpStatus.CREATED);
+        return new ResponseEntity<>(topic, HttpStatus.CREATED);
     }
 
 }

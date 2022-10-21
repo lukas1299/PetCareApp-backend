@@ -4,9 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.util.UUID;
 
 @Entity
+@Table(name = "events")
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Setter
@@ -14,23 +15,22 @@ import java.util.Date;
 @Builder
 public class Event {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
+    @Column(name = "id")
+    private UUID id;
 
     private String name;
-    private Date date;
+    private String date;
     private EventType eventType;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "animal_id")
     @JsonIgnore
     private Animal animal;
 
     public static Event fromDto(EventRequest eventRequest){
         return Event.builder()
+                .id(UUID.randomUUID())
                 .name(eventRequest.name())
-                .date(eventRequest.data())
                 .eventType(eventRequest.eventType())
                 .build();
     }
