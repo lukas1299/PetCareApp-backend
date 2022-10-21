@@ -3,7 +3,6 @@ package com.project.project.main.service;
 import com.project.project.main.model.*;
 import com.project.project.main.repository.AnimalRepository;
 import com.project.project.main.repository.EventRepository;
-import com.project.project.main.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,17 +14,11 @@ import java.util.Date;
 public class AnimalService {
 
     private final EventRepository eventRepository;
-    private final UserRepository userRepository;
     private final AnimalRepository animalRepository;
 
     public Animal createAnimal(AnimalRequest animalRequest, User user) {
 
-        var animal = new Animal();
-        animal.setName(animalRequest.name());
-        animal.setType(animalRequest.animalType());
-        animal.setAge(animalRequest.age());
-        animal.setWeight(animalRequest.weight());
-        animal.setAnimalGender(animalRequest.gender());
+        var animal = Animal.fromDto(animalRequest);
         animal.setUser(user);
 
         var userAnimalsList = user.getAnimals();
@@ -36,7 +29,7 @@ public class AnimalService {
             user.setAnimals(newUserAnimalsList);
         }
 
-        userRepository.save(user);
+        animalRepository.save(animal);
 
         return animal;
     }
@@ -44,22 +37,24 @@ public class AnimalService {
     public Event addEventToAnimal(Animal animal, EventRequest eventRequest) {
         Event event = Event.fromDto(eventRequest);
 
-        event.setDate(new Date(System.currentTimeMillis()));
+        event.setDate(String.valueOf(new Date(System.currentTimeMillis())));
         event.setAnimal(animal);
+
+        var newEvent = eventRepository.save(event);
 
         var eventList = animal.getEvents();
 
         if (eventList.isEmpty()) {
             var newEventList = new ArrayList<Event>();
-            newEventList.add(event);
+            newEventList.add(newEvent);
             animal.setEvents(newEventList);
         } else {
-            eventList.add(event);
+            eventList.add(newEvent);
             animal.setEvents(eventList);
         }
 
         animalRepository.save(animal);
 
-        return eventRepository.save(event);
+        return newEvent;
     }
 }

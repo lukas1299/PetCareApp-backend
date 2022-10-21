@@ -8,6 +8,7 @@ import com.project.project.forum.repository.TopicRepository;
 import com.project.project.main.model.User;
 import com.project.project.main.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -15,21 +16,22 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PostService {
 
     private final TopicRepository topicRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
-    public List<Post> getPostsByTopic(Long id){
-        List<Post> list;
+    public List<Post> getPostsByTopic(UUID id){
 
         var topic = topicRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Topic does not exists"));
 
-        list = topic.getPosts();
+        List<Post> list = topic.getPosts();
 
         if(list.isEmpty()){
             return new ArrayList<>();
@@ -37,16 +39,15 @@ public class PostService {
         return list;
     }
 
-    public Topic createPost(Long topicId, RequestPost requestPost){
+    public Topic createPost(UUID topicId, RequestPost requestPost){
         var topic = topicRepository.findById(topicId).orElseThrow(() -> new EntityNotFoundException("Topic does not exist"));
         //TODO test
         LocalDateTime localDateTime = LocalDateTime.now();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 
-        var post = buildPost(requestPost);
-
+        var post = Post.fromDto(requestPost,localDateTime.format(format));
         post.setTopic(topic);
-        post.setPostCreationDate(localDateTime.format(format));
+
         postRepository.save(post);
 
         var postList = topic.getPosts();
@@ -88,12 +89,5 @@ public class PostService {
         postRepository.save(post);
         return post;
     }
-
-    private Post buildPost(RequestPost requestPost){
-        return Post.builder()
-                .message(requestPost.message())
-                .build();
-    }
-
 
 }

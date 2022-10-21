@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Builder
@@ -16,26 +17,27 @@ import java.util.List;
 public class Animal {
     @Id
     @Column(name = "id", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
 
     private String name;
     private AnimalType type;
     private int age;
     private Double weight;
+
     @Column(name = "gender")
     private AnimalGender animalGender;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
 
-    @OneToMany(mappedBy = "animal")
+    @OneToMany(mappedBy = "animal", fetch = FetchType.LAZY)
     private List<Event> events;
 
     public static Animal fromDto(AnimalRequest animalRequest){
         return Animal.builder()
+                .id(UUID.randomUUID())
                 .name(animalRequest.name())
                 .type(animalRequest.animalType())
                 .age(animalRequest.age())

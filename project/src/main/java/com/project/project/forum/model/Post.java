@@ -1,6 +1,8 @@
 package com.project.project.forum.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.project.project.main.model.Animal;
+import com.project.project.main.model.AnimalRequest;
 import com.project.project.main.model.User;
 import lombok.*;
 import javax.persistence.*;
@@ -15,23 +17,37 @@ import java.util.UUID;
 @Builder
 public class Post {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
+    @Column(name = "id")
+    private UUID id;
 
+    @Column(name = "message")
     private String message;
+
+    @Column(name = "positive_opinion_amount")
     private int positiveOpinionAmount;
+
+    @Column(name = "negative_opinion_amount")
     private int negativeOpinionAmount;
+
+    @Column(name = "post_creation_date")
     private String postCreationDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_id")
     @JsonIgnore
     private Topic topic;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id", insertable = false, updatable = false)
     @JsonIgnore
     private User user;
+
+    public static Post fromDto(RequestPost requestPost, String date){
+        return Post.builder()
+                .id(UUID.randomUUID())
+                .postCreationDate(date)
+                .message(requestPost.message())
+                .build();
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.project.project.main.controller;
 
+//import com.project.project.forum.model.Topic;
 import com.project.project.forum.model.Topic;
 import com.project.project.main.model.UserRequest;
 import com.project.project.main.model.User;
@@ -28,14 +29,23 @@ public class UserController {
     @GetMapping("/topics/all")
     public ResponseEntity<List<Topic>> getUserTopic(){
 
-        var topics = userRepository.findById(UUID.fromString("8355fa25-d7c4-4963-9704-6eab27553e8d")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
-        return ResponseEntity.ok(topics.getTopics());
+        var user = userRepository.findById(UUID.fromString("71ce1069-d0ec-44e1-a497-84ad4b1ce603")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
+        return ResponseEntity.ok(user.getTopics());
     }
 
     @PostMapping("/add")
     public ResponseEntity<User> addUser(@RequestBody UserRequest userRequest){
         var user = User.fromDto(userRequest);
         return new ResponseEntity<>(userRepository.save(user), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/asdasd")
+    public void asd(){
+        User user = new User();
+        user.setId(UUID.randomUUID());
+
+        userRepository.save(user);
+
     }
 
 }

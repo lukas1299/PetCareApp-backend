@@ -17,23 +17,32 @@ import java.util.UUID;
 @Builder
 public class Topic {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "topic_id", nullable = false)
-    private Long id;
+    private UUID id;
 
     private String title;
 
     @Column(name = "topicCategory")
+    @Enumerated(EnumType.STRING)
     private TopicCategory topicCategory;
     private String description;
     private String creationDate;
 
-    @OneToMany(mappedBy = "topic")
+    @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY)
     private List<Post> posts;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
+
+    public static Topic fromDto(RequestTopic requestTopic, String creationDate) {
+        return Topic.builder()
+                .id(UUID.randomUUID())
+                .title(requestTopic.title())
+                .topicCategory(requestTopic.topicCategory())
+                .description(requestTopic.description())
+                .creationDate(creationDate)
+                .build();
+    }
 
 }
