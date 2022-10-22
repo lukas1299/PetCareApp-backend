@@ -38,7 +38,7 @@ public class Post {
     private Topic topic;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
 

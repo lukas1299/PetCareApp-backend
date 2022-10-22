@@ -1,10 +1,11 @@
 package com.project.project.main.controller;
 
-//import com.project.project.forum.model.Topic;
 import com.project.project.forum.model.Topic;
 import com.project.project.main.model.UserRequest;
 import com.project.project.main.model.User;
+
 import com.project.project.main.repository.UserRepository;
+import com.project.project.main.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import java.util.UUID;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final UserService userService;
 
     @GetMapping("/all")
     public ResponseEntity<List<User>> getAllUsers(){
@@ -34,18 +36,9 @@ public class UserController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<User> addUser(@RequestBody UserRequest userRequest){
-        var user = User.fromDto(userRequest);
-        return new ResponseEntity<>(userRepository.save(user), HttpStatus.CREATED);
+    public ResponseEntity<User> addUser(@RequestBody UserRequest userRequest) throws Exception {
+
+        var user = userService.createUser(userRequest);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
-
-    @PostMapping("/asdasd")
-    public void asd(){
-        User user = new User();
-        user.setId(UUID.randomUUID());
-
-        userRepository.save(user);
-
-    }
-
 }

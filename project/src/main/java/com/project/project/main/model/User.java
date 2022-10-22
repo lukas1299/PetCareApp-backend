@@ -1,5 +1,6 @@
 package com.project.project.main.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.project.forum.model.Post;
 import com.project.project.forum.model.Topic;
 import lombok.*;
@@ -33,11 +34,16 @@ public class User {
     private List<Post> assessedPosts;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Topic> topics;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Animal> animals;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
+    @JsonIgnore
+    private Profile profile;
 
     public static User fromDto(UserRequest userRequest) {
         return User.builder()

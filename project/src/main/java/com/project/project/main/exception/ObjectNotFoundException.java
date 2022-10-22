@@ -1,9 +1,9 @@
 package com.project.project.main.exception;
 
-public class UserNotFoundException extends RuntimeException{
+public class ObjectNotFoundException extends RuntimeException{
     private String message;
 
-    public UserNotFoundException(String msg){
+    public ObjectNotFoundException(String msg){
         super(msg);
         this.message = msg;
     }
