@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface FriendRepository extends JpaRepository<Friend, UUID> {
@@ -13,6 +14,6 @@ public interface FriendRepository extends JpaRepository<Friend, UUID> {
     List<Friend> findByProfile_id(UUID id);
 
     @Query(value = "SELECT * FROM friends WHERE profile_id= ?1 AND user_id = ?2" ,nativeQuery = true)
-    Friend findByProfileIdAndUserId(UUID profileId, UUID userId);
+    Optional<Friend> findByProfileIdAndUserId(UUID profileId, UUID userId);
 
 }

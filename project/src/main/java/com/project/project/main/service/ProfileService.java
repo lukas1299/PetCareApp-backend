@@ -1,7 +1,10 @@
 package com.project.project.main.service;
 
+import com.project.project.main.model.Friend;
 import com.project.project.main.model.FriendRequest;
 import com.project.project.main.model.Profile;
+import com.project.project.main.model.User;
+import com.project.project.main.repository.FriendRepository;
 import com.project.project.main.repository.ProfileRepository;
 import com.project.project.main.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +20,13 @@ public class ProfileService {
 
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
+    private final FriendRepository friendRepository;
 
     public Profile createProfile(UUID id) throws Exception {
 
         var user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User does not exist"));
 
-        if(profileRepository.findByUserId(id).isPresent()){
+        if (profileRepository.findByUserId(id).isPresent()) {
             throw new Exception("Entity currently exists");
         }
 
@@ -37,21 +41,17 @@ public class ProfileService {
 
     }
 
-//    public Profile addUserToFriends(UUID id, FriendRequest friendRequest) {
-//
-//        var user = userRepository.findByUsernameOrEmail(friendRequest.name(), null).orElseThrow(() -> new EntityNotFoundException("User does not exist"));
-//        var loggedUser = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User does not exist"));
-//
-//        var profiles = loggedUser.getProfile();
-//
-//        profiles.getFriends().add(user);
-//        user.getProfiles().add(profiles);
-//
-//        var friends = profiles.getFriends();
-//        profiles.setFriends(friends);
-//
-//        userRepository.save(user);
-//
-//        return profileRepository.save(profiles);
-//    }
+    public void addUserToFriends(UUID id, FriendRequest friendRequest) throws Exception {
+
+        var user = userRepository.findByUsernameOrEmail(friendRequest.name(), null).orElseThrow(() -> new Exception("User does not exist"));
+
+        var profile = profileRepository.findByUserId(id).orElseThrow(() -> new Exception("Profile does not exist"));
+
+        if (friendRepository.findByProfileIdAndUserId(profile.getId(), user.getId()).isPresent()) {
+            throw new Exception("Friend currently exist");
+        }
+
+        friendRepository.save(Friend.fromDto(user, profile));
+
+    }
 }

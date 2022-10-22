@@ -40,6 +40,10 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Animal> animals;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Friend> friends;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id")
     @JsonIgnore
