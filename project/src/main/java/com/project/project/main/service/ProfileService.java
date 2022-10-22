@@ -3,7 +3,6 @@ package com.project.project.main.service;
 import com.project.project.main.model.Friend;
 import com.project.project.main.model.FriendRequest;
 import com.project.project.main.model.Profile;
-import com.project.project.main.model.User;
 import com.project.project.main.repository.FriendRepository;
 import com.project.project.main.repository.ProfileRepository;
 import com.project.project.main.repository.UserRepository;
