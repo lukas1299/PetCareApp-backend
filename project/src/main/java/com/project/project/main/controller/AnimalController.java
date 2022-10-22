@@ -34,7 +34,7 @@ public class AnimalController {
     public ResponseEntity<Animal> createAnimal(@RequestBody AnimalRequest requestAnimal) {
 
         //TODO change to logged user
-        var user = userRepository.findById(UUID.fromString("4c6ad267-3b13-48d7-80b5-5d603acf66f8")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
+        var user = userRepository.findById(UUID.fromString("5a8cb23f-fa0d-4dff-8c16-0d14cd1f8113")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
         var animal = animalService.createAnimal(requestAnimal, user);
         return new ResponseEntity<>(animal, HttpStatus.CREATED);
     }
