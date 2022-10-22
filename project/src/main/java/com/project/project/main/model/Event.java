@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -19,7 +20,7 @@ public class Event {
     private UUID id;
 
     private String name;
-    private String date;
+    private Date date;
     private EventType eventType;
 
     @ManyToOne(fetch = FetchType.LAZY)

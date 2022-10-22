@@ -47,17 +47,6 @@ public class ProfileController {
         profileService.addUserToFriends(id, friendRequest);
     }
 
-//    @DeleteMapping("/{id}/user/friends/delete")
-//    public void deleteFriend(@PathVariable UUID id, @RequestBody FriendRequest friendRequest) {
-//
-//        var user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User does not exist"));
-//        var friend = userRepository.findByUsernameOrEmail(friendRequest.name(), null).orElseThrow(() -> new ObjectNotFoundException("User does not exist"));
-//        var profile = user.getProfile();
-//
-//        var finalFriend = friendRepository.findByProfileIdAndUserId(profile.getId(), friend.getId());
-//
-//        friendRepository.delete(finalFriend.get());
-//    }
 
     @PostMapping("/me")
     public ResponseEntity<Profile> getMyProfile() {

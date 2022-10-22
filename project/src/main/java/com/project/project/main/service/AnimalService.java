@@ -37,7 +37,7 @@ public class AnimalService {
     public Event addEventToAnimal(Animal animal, EventRequest eventRequest) {
         Event event = Event.fromDto(eventRequest);
 
-        event.setDate(String.valueOf(new Date(System.currentTimeMillis())));
+        event.setDate(new Date(System.currentTimeMillis()));
         event.setAnimal(animal);
 
         var newEvent = eventRepository.save(event);
