@@ -16,6 +16,11 @@ public class UserService {
     public User createUser(UserRequest userRequest) throws Exception {
 
         var user = User.fromDto(userRequest);
+
+        if(userRepository.findByUsernameOrEmail(userRequest.username(), userRequest.email()).isPresent()){
+            throw new Exception("User currently exist");
+        }
+
         var newUser = userRepository.save(user);
         profileService.createProfile(newUser.getId());
 

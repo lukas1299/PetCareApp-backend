@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,23 +42,22 @@ public class ProfileController {
         return ResponseEntity.ok(profile);
     }
 
-//    @PostMapping("/{id}/user/friends/add")
-//    public ResponseEntity<Profile> addUserToFriends(@PathVariable UUID id, @RequestBody FriendRequest friendRequest) {
-//        var profile = profileService.addUserToFriends(id, friendRequest);
-//        return ResponseEntity.ok(profile);
-//    }
-
-    @DeleteMapping("/{id}/user/friends/delete")
-    public void deleteFriend(@PathVariable UUID id, @RequestBody FriendRequest friendRequest) {
-
-        var user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User does not exist"));
-        var friend = userRepository.findByUsernameOrEmail(friendRequest.name(), null).orElseThrow(() -> new ObjectNotFoundException("User does not exist"));
-        var profile = user.getProfile();
-
-        var finalFriend = friendRepository.findByProfileIdAndUserId(profile.getId(), friend.getId());
-
-        friendRepository.delete(finalFriend);
+    @PostMapping("/{id}/user/friends/add")
+    public void addUserToFriends(@PathVariable UUID id, @RequestBody FriendRequest friendRequest) throws Exception {
+        profileService.addUserToFriends(id, friendRequest);
     }
+
+//    @DeleteMapping("/{id}/user/friends/delete")
+//    public void deleteFriend(@PathVariable UUID id, @RequestBody FriendRequest friendRequest) {
+//
+//        var user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User does not exist"));
+//        var friend = userRepository.findByUsernameOrEmail(friendRequest.name(), null).orElseThrow(() -> new ObjectNotFoundException("User does not exist"));
+//        var profile = user.getProfile();
+//
+//        var finalFriend = friendRepository.findByProfileIdAndUserId(profile.getId(), friend.getId());
+//
+//        friendRepository.delete(finalFriend.get());
+//    }
 
     @PostMapping("/me")
     public ResponseEntity<Profile> getMyProfile() {
