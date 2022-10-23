@@ -4,10 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -20,6 +18,9 @@ public class Achievement {
     @Column(name = "id", nullable = false)
     private UUID id;
 
+    @OneToMany(mappedBy = "achievement", fetch = FetchType.LAZY)
+    private List<ProfileAchievement> profileAchievements;
+
     @Column(name = "name")
     private String name;
 
@@ -29,5 +30,4 @@ public class Achievement {
                 .name(achievementRequest.name())
                 .build();
     }
-
 }

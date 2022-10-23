@@ -1,6 +1,6 @@
 package com.project.project.main.model;
 
-import com.project.project.collections.model.Collection;
+import com.project.project.achievements.model.ProfileAchievement;
 import lombok.*;
 import javax.persistence.*;
 import java.util.List;
@@ -26,8 +26,8 @@ public class Profile {
     @OneToMany(mappedBy = "profile", fetch = FetchType.LAZY)
     private List<Friend> friends;
 
-    @OneToMany(mappedBy = "collections", fetch = FetchType.LAZY)
-    private List<Collection> collection;
+    @OneToMany(mappedBy = "profile")
+    private List<ProfileAchievement> profileAchievements;
 
     public static Profile fromDto(User user){
         return Profile.builder()
