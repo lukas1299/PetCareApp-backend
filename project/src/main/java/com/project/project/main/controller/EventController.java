@@ -1,16 +1,12 @@
 package com.project.project.main.controller;
 
 import com.project.project.main.model.Event;
-import com.project.project.main.model.EventRequest;
-import com.project.project.main.repository.AnimalRepository;
 import com.project.project.main.repository.EventRepository;
-import com.project.project.main.service.AnimalService;
 import com.project.project.main.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,8 +17,6 @@ public class EventController {
 
     private final EventRepository eventRepository;
     private final EventService eventService;
-    private final AnimalRepository animalRepository;
-    private final AnimalService animalService;
 
     @GetMapping
     public ResponseEntity<List<Event>> getAllEvent(){
@@ -48,5 +42,4 @@ public class EventController {
         var events = eventService.getEventByMonth(id, month);
         return ResponseEntity.ok(events);
     }
-
 }
