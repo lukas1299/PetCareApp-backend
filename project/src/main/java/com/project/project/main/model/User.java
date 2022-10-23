@@ -1,6 +1,7 @@
 package com.project.project.main.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.project.project.collections.model.CollectionHistory;
 import com.project.project.forum.model.Post;
 import com.project.project.forum.model.Topic;
 import lombok.*;
@@ -43,6 +44,10 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Friend> friends;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<CollectionHistory> collections;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id")

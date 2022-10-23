@@ -1,8 +1,7 @@
 package com.project.project.main.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.project.project.collections.model.Collection;
 import lombok.*;
-
 import javax.persistence.*;
 import java.util.List;
 import java.util.UUID;
@@ -15,6 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Profile {
+
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
@@ -26,11 +26,13 @@ public class Profile {
     @OneToMany(mappedBy = "profile", fetch = FetchType.LAZY)
     private List<Friend> friends;
 
+    @OneToMany(mappedBy = "collections", fetch = FetchType.LAZY)
+    private List<Collection> collection;
+
     public static Profile fromDto(User user){
         return Profile.builder()
                 .id(UUID.randomUUID())
                 .user(user)
                 .build();
     }
-
 }
