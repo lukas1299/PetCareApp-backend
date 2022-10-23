@@ -9,7 +9,6 @@ import com.project.project.main.exception.AssessmentException;
 import com.project.project.main.model.User;
 import com.project.project.main.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
@@ -18,19 +17,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class PostService {
 
     private final TopicRepository topicRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-
-    Logger logger = Logger.getLogger(PostService.class.getName());
 
     public List<Post> getPostsByTopic(UUID id) {
 
