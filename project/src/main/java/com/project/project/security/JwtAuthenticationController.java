@@ -30,7 +30,6 @@ public class JwtAuthenticationController {
     public ResponseEntity<User> registerUser(@Valid @RequestBody UserRequest userRequest) throws Exception {
 
         var user = userService.createUser(userRequest);
-
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 

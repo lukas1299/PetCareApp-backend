@@ -10,6 +10,8 @@ import com.project.project.main.repository.ProfileRepository;
 import com.project.project.main.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -29,9 +31,11 @@ public class CollectionController {
     private final CollectionHistoryRepository collectionHistoryRepository;
 
     @GetMapping("/me")
-    public Optional<List<Collection>> getMyCollections() throws Exception {
+    public Optional<List<Collection>> getMyCollections(Authentication authentication) throws Exception {
 
-        var profile = profileRepository.findByUserId(UUID.fromString("7ff63066-82cb-4980-a318-0e07447b4744")).orElseThrow(() -> new Exception("User does not exist"));
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+
+        var profile = profileRepository.findByUserId(user.getId()).orElseThrow(() -> new Exception("Profile does not exist"));
 
         return collectionRepository.findByProfile_id(profile.getId());
     }
@@ -47,10 +51,10 @@ public class CollectionController {
 
 
     @PostMapping("/{id}/user/add")
-    public ResponseEntity<Collection> addCollection(@PathVariable UUID id, @RequestBody CollectionRequest collectionRequest) throws Exception {
+    public ResponseEntity<Collection> addCollection(@RequestBody CollectionRequest collectionRequest, Authentication authentication) throws Exception {
 
-        //TODO Change id to authenticated user id
-        var profile = profileRepository.findByUserId(id).orElseThrow(() -> new Exception("User does not exist"));
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+        var profile = profileRepository.findByUserId(user.getId()).orElseThrow(() -> new Exception("User does not exist"));
 
         LocalDateTime localDateTime = LocalDateTime.now();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
@@ -59,11 +63,9 @@ public class CollectionController {
 
     }
     @PostMapping("/{id}/donate")
-    public void donateCollection (@PathVariable UUID id, @RequestBody DonateRequest donateRequest) throws Exception {
+    public void donateCollection (@PathVariable UUID id, @RequestBody DonateRequest donateRequest, Authentication authentication) throws Exception {
 
-        //TODO Change id to authenticated user id
-        var user = userRepository.findAll().get(0);
-
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         var collection = collectionRepository.findById(id).orElseThrow(() -> new Exception("Collection does not exist"));
 
         collectionHistoryRepository.save(CollectionHistory.fromDto(collection, user, donateRequest));
