@@ -9,6 +9,8 @@ import com.project.project.main.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
@@ -29,9 +31,9 @@ public class UserController {
     }
 
     @GetMapping("/topics/all")
-    public ResponseEntity<List<Topic>> getUserTopic(){
+    public ResponseEntity<List<Topic>> getUserTopic(Authentication authentication){
 
-        var user = userRepository.findById(UUID.fromString("71ce1069-d0ec-44e1-a497-84ad4b1ce603")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         return ResponseEntity.ok(user.getTopics());
     }
 

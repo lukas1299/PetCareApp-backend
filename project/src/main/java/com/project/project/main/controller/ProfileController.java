@@ -10,6 +10,8 @@ import com.project.project.main.repository.UserRepository;
 import com.project.project.main.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,21 +27,13 @@ public class ProfileController {
     private final FriendRepository friendRepository;
     private final ProfileService profileService;
 
-    @GetMapping("/{id}/friends")
-    private ResponseEntity<List<Friend>> getUserFriends(@PathVariable UUID id) {
-        //TODO check authority user
-        var friendsList = friendRepository.findByProfile_id(id);
+    @GetMapping("/friends")
+    private ResponseEntity<List<Friend>> getUserFriends(Authentication authentication) {
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+        var profile = profileRepository.findByUserId(user.getId()).orElseThrow(() -> new ObjectNotFoundException("Profile does not exist"));
+        var friendsList = friendRepository.findByProfile_id(profile.getId());
 
         return ResponseEntity.ok(friendsList);
-    }
-
-    @PostMapping("/{id}/user/add")
-    public ResponseEntity<Profile> createProfile(@PathVariable UUID id) throws Exception {
-
-        //TODO check authority user
-        var profile = profileService.createProfile(id);
-
-        return ResponseEntity.ok(profile);
     }
 
     @PostMapping("/{id}/user/friends/add")
@@ -47,10 +41,9 @@ public class ProfileController {
         profileService.addUserToFriends(id, friendRequest);
     }
 
-
     @PostMapping("/me")
-    public ResponseEntity<Profile> getMyProfile() {
-        var user = userRepository.findById(UUID.fromString("5a8cb23f-fa0d-4dff-8c16-0d14cd1f8113")).orElseThrow(() -> new ObjectNotFoundException("User does not exists"));
+    public ResponseEntity<Profile> getMyProfile(Authentication authentication) {
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         var profile = profileRepository.findByUserId(user.getId()).orElseThrow(() -> new ObjectNotFoundException("Profile does not exist"));
 
         return ResponseEntity.ok(profile);

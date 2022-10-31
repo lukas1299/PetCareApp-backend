@@ -9,6 +9,8 @@ import com.project.project.main.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
@@ -36,33 +38,27 @@ public class PostController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<List<Post>> getMePosts() {
-        //TODO change to logged user
-        var user = userRepository.findById(UUID.fromString("71ce1069-d0ec-44e1-a497-84ad4b1ce603")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
+    public ResponseEntity<List<Post>> getMePosts(Authentication authentication) {
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         return ResponseEntity.ok(postRepository.findByUser(user));
     }
 
     @PostMapping("/add/{topicId}")
     public ResponseEntity<Topic> createPost(@PathVariable UUID topicId, @RequestBody RequestPost requestPost) {
-
         return new ResponseEntity<>(postService.createPost(topicId, requestPost), HttpStatus.CREATED);
     }
 
     @PostMapping("/like/{id}")
-    public ResponseEntity<Post> realizeLikePost(@PathVariable UUID id) {
-
-        //TODO get logged user
-        var user = userRepository.findById(UUID.fromString("5a8cb23f-fa0d-4dff-8c16-0d14cd1f8113")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
+    public ResponseEntity<Post> realizeLikePost(@PathVariable UUID id, Authentication authentication) {
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         var post = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Post does not exist"));
 
         return ResponseEntity.ok(postService.realizeLikePost(post, user));
     }
 
     @PostMapping("/dislike/{id}")
-    public ResponseEntity<Post> realizeDislikePost(@PathVariable UUID id) {
-
-        //TODO get logged user
-        var user = userRepository.findById(UUID.fromString("5a8cb23f-fa0d-4dff-8c16-0d14cd1f8113")).orElseThrow(() -> new EntityNotFoundException("User does not exists"));
+    public ResponseEntity<Post> realizeDislikePost(@PathVariable UUID id, Authentication authentication) {
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         var post = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Post does not exist"));
 
         return ResponseEntity.ok(postService.realizeDislikePost(post, user));

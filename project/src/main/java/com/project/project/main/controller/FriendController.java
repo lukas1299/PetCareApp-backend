@@ -4,9 +4,12 @@ import com.project.project.main.model.FriendStatus;
 import com.project.project.main.model.User;
 import com.project.project.main.repository.FriendRepository;
 import com.project.project.main.repository.ProfileRepository;
+import com.project.project.main.repository.UserRepository;
 import com.project.project.main.service.FriendService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
@@ -21,11 +24,13 @@ public class FriendController {
     private final ProfileRepository profileRepository;
     private final FriendRepository friendRepository;
     private final FriendService friendService;
+    private final UserRepository userRepository;
 
     @GetMapping("/me")
-    public ResponseEntity<List<User>> getUserFriends() {
+    public ResponseEntity<List<User>> getUserFriends(Authentication authentication) {
 
-        var profile = profileRepository.findByUserId(UUID.fromString("85564ae7-9796-434f-9b13-689ac3da5a1e")).orElseThrow(() -> new EntityNotFoundException("Profile does not exists"));
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+        var profile = profileRepository.findByUserId(user.getId()).orElseThrow(() -> new EntityNotFoundException("Profile does not exists"));
 
         return ResponseEntity.ok(friendService.getFriend(profile));
     }
