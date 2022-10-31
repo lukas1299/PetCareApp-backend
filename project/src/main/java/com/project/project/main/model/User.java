@@ -32,6 +32,7 @@ public class User {
     private String password;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Post> assessedPosts;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
@@ -39,6 +40,7 @@ public class User {
     private List<Topic> topics;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Animal> animals;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
@@ -53,6 +55,10 @@ public class User {
     @JoinColumn(name = "id")
     @JsonIgnore
     private Profile profile;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<UserRole> userRoles;
 
     public static User fromDto(UserRequest userRequest) {
         return User.builder()

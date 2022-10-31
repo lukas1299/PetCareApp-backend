@@ -7,6 +7,8 @@ http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd
 http://www.liquibase.org/xml/ns/pro
 http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd">
     <include file="db/changelog/database/01-create-user.sql"/>
+    <include file="db/changelog/database/01-create-role.sql"/>
+    <include file="db/changelog/database/01-create-role-user.sql"/>
     <include file="db/changelog/database/01-create-profile.sql"/>
     <include file="db/changelog/database/01-create-friend.sql"/>
     <include file="db/changelog/database/01-create-collection.sql"/>

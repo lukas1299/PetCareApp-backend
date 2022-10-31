@@ -1,36 +1,50 @@
 plugins {
-	id 'org.springframework.boot' version '2.7.3'
-	id 'io.spring.dependency-management' version '1.0.13.RELEASE'
+	id 'org.springframework.boot' version '2.7.1'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id 'java'
 }
 
-group = 'com.project'
+group = 'com.virtuslab.vlplanner'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
 
 repositories {
 	mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-//	implementation 'org.springframework.boot:spring-boot-starter-data-rest'
-	//implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	//implementation 'org.jetbrains:annotations:20.1.0'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.7.1'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.7.1'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.7.1'
+	implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.12.0'
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.3'
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '2.7.1'
-	implementation group: 'org.liquibase', name: 'liquibase-core', version: '4.15.0'
-	runtimeOnly 'org.postgresql:postgresql'
+	implementation group: 'org.postgresql', name: 'postgresql', version: '42.4.0'
+	implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.2'
+	implementation group: "org.glassfish.jaxb", name: 'jaxb-runtime', version: '2.3.2'
+	implementation group: 'junit', name: 'junit', version: '4.13.1'
+	implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.9'
 
-	compileOnly 'org.projectlombok:lombok:1.18.24'
-	annotationProcessor 'org.projectlombok:lombok:1.18.24'
+	compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
 
-	testCompileOnly 'org.projectlombok:lombok:1.18.24'
-	testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+	annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.24'
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.7.1'
+	testImplementation group: 'org.springframework.security', name:'spring-security-test', version: '5.7.1'
+	testImplementation group: "org.testcontainers", name:'testcontainers', version: '1.17.3'
+	testImplementation group: "org.testcontainers", name:'junit-jupiter', version: '1.17.3'
+	testImplementation group: "org.testcontainers", name:'postgresql', version: '1.17.3'
+	testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.6.1'
+	testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.8.2'
+	testImplementation group: 'io.rest-assured', name: 'spring-mock-mvc', version: '3.0.0'
 }
+
 
 tasks.named('test') {
 	useJUnitPlatform()
