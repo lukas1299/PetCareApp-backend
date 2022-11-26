@@ -55,4 +55,16 @@ public class ProfileService {
         friendRepository.save(Friend.fromDto(user, profile));
 
     }
+
+    public void deleteUserFromFriends(Authentication authentication, FriendRequest friendRequest) throws Exception {
+
+        var user = userRepository.findByUsernameOrEmail(friendRequest.name(), null).orElseThrow(() -> new Exception("User does not exist"));
+        var me = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new Exception("User does not exist"));
+        var profile = profileRepository.findByUserId(me.getId()).orElseThrow(() -> new Exception("Profile does not exist"));
+
+        var friend = friendRepository.findByProfileIdAndUserId(profile.getId(), user.getId()).orElseThrow(() -> new Exception("User does not exist"));
+
+        friendRepository.delete(friend);
+    }
+
 }
