@@ -37,7 +37,9 @@ public class WebSecurityConfig {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/authentication", "/register", "/users/all", "/users/add", "/roles/add").permitAll()
-                .antMatchers("/users/info").hasAnyAuthority("USER")
+                .antMatchers("/topics/add", "/topics", "posts/topic/{id}", "/posts/add/{topicId}", "/animals/me", "/friends/me"
+                        , "/user/friends/add", "/me/waiting", "/friends/{id}/accept", "/animals/add", "/like/{id}", "/dislike/{id}").hasAnyAuthority("USER")
+                .antMatchers("/users/info").hasAnyAuthority("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling()

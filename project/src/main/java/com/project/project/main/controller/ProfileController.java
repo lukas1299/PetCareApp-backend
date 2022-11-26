@@ -15,9 +15,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/profiles")
 @RequiredArgsConstructor
 public class ProfileController {
@@ -36,12 +36,12 @@ public class ProfileController {
         return ResponseEntity.ok(friendsList);
     }
 
-    @PostMapping("/{id}/user/friends/add")
-    public void addUserToFriends(@PathVariable UUID id, @RequestBody FriendRequest friendRequest) throws Exception {
-        profileService.addUserToFriends(id, friendRequest);
+    @PostMapping("/user/friends/add")
+    public void addUserToFriends(Authentication authentication, @RequestBody FriendRequest friendRequest) throws Exception {
+        profileService.addUserToFriends(authentication, friendRequest);
     }
 
-    @PostMapping("/me")
+    @GetMapping("/me")
     public ResponseEntity<Profile> getMyProfile(Authentication authentication) {
         var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         var profile = profileRepository.findByUserId(user.getId()).orElseThrow(() -> new ObjectNotFoundException("Profile does not exist"));

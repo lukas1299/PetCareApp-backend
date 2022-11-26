@@ -22,10 +22,22 @@ public class FriendService {
         List<User> friends = new ArrayList<>();
 
         for (Friend u : friendRepository.findAll()){
-            if((profile.getId() == u.getProfile().getId()) && !u.getFriendStatus().equals(FriendStatus.CANCELED)){
+            if((profile.getId() == u.getProfile().getId()) && !u.getFriendStatus().equals(FriendStatus.CANCELED) && !u.getFriendStatus().equals(FriendStatus.WAITING)){
                 friends.add(u.getUser());
             }
         }
         return friends;
+    }
+
+    public List<User> getInvitations(Profile profile){
+
+        List<User> invitations = new ArrayList<>();
+
+        for (Friend u : friendRepository.findAll()){
+            if((profile.getId() == u.getProfile().getId()) && u.getFriendStatus().equals(FriendStatus.WAITING)){
+                invitations.add(u.getUser());
+            }
+        }
+        return invitations;
     }
 }

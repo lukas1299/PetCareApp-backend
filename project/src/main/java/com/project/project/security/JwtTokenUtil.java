@@ -15,7 +15,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtTokenUtil {
 
-    private static final int FIFTEEN_MIN_AD_MILLIS = 15 * 60 * 1000;
+    private static final int FIFTEEN_MIN_AD_MILLIS = 120 * 60 * 1000;
 
     private final Environment environment;
 

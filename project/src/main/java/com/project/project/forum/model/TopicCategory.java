@@ -1,5 +1,5 @@
 package com.project.project.forum.model;
 
 public enum TopicCategory {
-    HEALTH, FOOD, ACCESSORIES, DISEASES
+    GENERAL, HEALTH, FOOD, ACCESSORIES, DISEASES
 }
