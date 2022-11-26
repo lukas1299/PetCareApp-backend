@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/friends")
 @RequiredArgsConstructor
 public class FriendController {
@@ -35,10 +36,23 @@ public class FriendController {
         return ResponseEntity.ok(friendService.getFriend(profile));
     }
 
-    @PostMapping("/{id}/accept")
-    public ResponseEntity<List<User>> acceptInvitation(@PathVariable UUID id) throws Exception {
+    @GetMapping("/me/waiting")
+    public ResponseEntity<List<User>> getInvitations(Authentication authentication){
 
-        var invitation = friendRepository.findById(id).orElseThrow(() -> new Exception("Invitation does not exists"));
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+
+        var userProfile = profileRepository.findByUserId(user.getId()).get();
+
+        return ResponseEntity.ok(friendService.getInvitations(userProfile));
+    }
+
+    @GetMapping("/{id}/accept")
+    public ResponseEntity<List<User>> acceptInvitation(@PathVariable UUID id, Authentication authentication) throws Exception {
+
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+        var userProfile = profileRepository.findByUserId(user.getId()).get();
+
+        var invitation = friendRepository.findByProfileIdAndUserId(userProfile.getId(), id).orElseThrow(() -> new Exception("Invitation does not exists"));
 
         if(!invitation.getFriendStatus().equals(FriendStatus.WAITING)){
             throw new Exception("Unable to accept");

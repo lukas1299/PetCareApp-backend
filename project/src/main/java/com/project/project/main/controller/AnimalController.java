@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
+@CrossOrigin
 @RequiredArgsConstructor
 @RequestMapping("/animals")
 public class AnimalController {
@@ -30,6 +30,13 @@ public class AnimalController {
     @GetMapping
     public ResponseEntity<List<Animal>> getAnimals() {
         return ResponseEntity.ok(animalRepository.findAll());
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<List<Animal>> getUserAnimals(Authentication authentication) {
+
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+        return ResponseEntity.ok(user.getAnimals());
     }
 
     @PostMapping("/add")
@@ -47,4 +54,5 @@ public class AnimalController {
         var event = animalService.addEventToAnimal(animal, eventRequest);
         return new ResponseEntity<>(event, HttpStatus.CREATED);
     }
+
 }

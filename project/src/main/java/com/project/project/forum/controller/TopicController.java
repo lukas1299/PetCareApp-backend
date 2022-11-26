@@ -1,23 +1,37 @@
 package com.project.project.forum.controller;
 
+import com.project.project.forum.model.RequestTopic;
 import com.project.project.forum.model.Topic;
 import com.project.project.forum.repository.TopicRepository;
+import com.project.project.forum.service.TopicService;
+import com.project.project.main.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/topics")
 @RequiredArgsConstructor
 public class TopicController {
 
     private final TopicRepository topicRepository;
+    private final UserRepository userRepository;
+    private final TopicService topicService;
 
     @GetMapping
     public ResponseEntity<List<Topic>> getAllTopics(){
         return ResponseEntity.ok(topicRepository.findAll());
     }
 
+    @PostMapping("/add")
+    public ResponseEntity<Topic> addTopic(@RequestBody RequestTopic requestTopic, Authentication authentication) {
+
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+        return ResponseEntity.ok(topicService.createTopic(user, requestTopic));
+    }
 }

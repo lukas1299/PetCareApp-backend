@@ -7,11 +7,11 @@ import com.project.project.main.repository.FriendRepository;
 import com.project.project.main.repository.ProfileRepository;
 import com.project.project.main.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.UUID;
-
 
 @Service
 @RequiredArgsConstructor
@@ -40,11 +40,13 @@ public class ProfileService {
 
     }
 
-    public void addUserToFriends(UUID id, FriendRequest friendRequest) throws Exception {
+    public void addUserToFriends(Authentication authentication, FriendRequest friendRequest) throws Exception {
 
         var user = userRepository.findByUsernameOrEmail(friendRequest.name(), null).orElseThrow(() -> new Exception("User does not exist"));
 
-        var profile = profileRepository.findByUserId(id).orElseThrow(() -> new Exception("Profile does not exist"));
+        var me = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new Exception("User does not exist"));
+
+        var profile = profileRepository.findByUserId(me.getId()).orElseThrow(() -> new Exception("Profile does not exist"));
 
         if (friendRepository.findByProfileIdAndUserId(profile.getId(), user.getId()).isPresent()) {
             throw new Exception("Friend currently exist");
