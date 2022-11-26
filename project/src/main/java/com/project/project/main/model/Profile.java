@@ -29,6 +29,9 @@ public class Profile {
     @OneToMany(mappedBy = "profile")
     private List<ProfileAchievement> profileAchievements;
 
+    @OneToMany(mappedBy = "profile", fetch = FetchType.LAZY)
+    private List<SocialPost> socialPosts;
+
     public static Profile fromDto(User user){
         return Profile.builder()
                 .id(UUID.randomUUID())

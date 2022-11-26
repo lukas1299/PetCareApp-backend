@@ -74,5 +74,4 @@ public class FriendController {
 
         return ResponseEntity.ok(friendService.getFriend(invitation.getProfile()));
     }
-
 }

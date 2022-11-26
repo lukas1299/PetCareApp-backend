@@ -36,11 +36,6 @@ public class ProfileController {
         return ResponseEntity.ok(friendsList);
     }
 
-    @PostMapping("/user/friends/add")
-    public void addUserToFriends(Authentication authentication, @RequestBody FriendRequest friendRequest) throws Exception {
-        profileService.addUserToFriends(authentication, friendRequest);
-    }
-
     @GetMapping("/me")
     public ResponseEntity<Profile> getMyProfile(Authentication authentication) {
         var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
@@ -48,4 +43,15 @@ public class ProfileController {
 
         return ResponseEntity.ok(profile);
     }
+
+    @PostMapping("/user/friends/add")
+    public void addUserToFriends(Authentication authentication, @RequestBody FriendRequest friendRequest) throws Exception {
+        profileService.addUserToFriends(authentication, friendRequest);
+    }
+
+    @DeleteMapping("/user/friends/delete")
+    public void deleteUserFromFriends(Authentication authentication, @RequestBody FriendRequest friendRequest) throws Exception {
+        profileService.deleteUserFromFriends(authentication, friendRequest);
+    }
+
 }
