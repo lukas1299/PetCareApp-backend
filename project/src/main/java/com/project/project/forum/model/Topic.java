@@ -15,7 +15,7 @@ import java.util.UUID;
 @Setter
 @Getter
 @Builder
-public class Topic {
+public class Topic implements Comparable<Topic> {
     @Id
     private UUID id;
 
@@ -35,6 +35,11 @@ public class Topic {
     @JsonIgnore
     private User user;
 
+    @Override
+    public int compareTo(Topic o) {
+        return getCreationDate().compareTo(o.getCreationDate());
+    }
+
     public static Topic fromDto(RequestTopic requestTopic, String creationDate) {
         return Topic.builder()
                 .id(UUID.randomUUID())
@@ -44,5 +49,4 @@ public class Topic {
                 .creationDate(creationDate)
                 .build();
     }
-
 }

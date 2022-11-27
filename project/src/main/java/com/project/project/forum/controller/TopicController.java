@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -25,7 +26,10 @@ public class TopicController {
 
     @GetMapping
     public ResponseEntity<List<Topic>> getAllTopics(){
-        return ResponseEntity.ok(topicRepository.findAll());
+
+        var list = topicRepository.findAll();
+        Collections.sort(list);
+        return ResponseEntity.ok(list);
     }
 
     @PostMapping("/add")

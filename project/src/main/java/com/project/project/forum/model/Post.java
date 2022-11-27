@@ -1,8 +1,6 @@
 package com.project.project.forum.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.project.project.main.model.Animal;
-import com.project.project.main.model.AnimalRequest;
 import com.project.project.main.model.User;
 import lombok.*;
 import javax.persistence.*;
@@ -15,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Post {
+public class Post implements Comparable<Post> {
     @Id
     @Column(name = "id")
     private UUID id;
@@ -50,4 +48,8 @@ public class Post {
                 .build();
     }
 
+    @Override
+    public int compareTo(Post o) {
+        return getPostCreationDate().compareTo(o.getPostCreationDate());
+    }
 }
