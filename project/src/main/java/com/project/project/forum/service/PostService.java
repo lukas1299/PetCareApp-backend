@@ -15,6 +15,7 @@ import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,6 +36,8 @@ public class PostService {
         if (list.isEmpty()) {
             return new ArrayList<>();
         }
+        Collections.sort(list);
+
         return list;
     }
 

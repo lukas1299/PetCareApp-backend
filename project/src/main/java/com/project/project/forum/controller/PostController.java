@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,7 +30,11 @@ public class PostController {
 
     @GetMapping("/all")
     public ResponseEntity<List<Post>> getAllPosts() {
-        return ResponseEntity.ok(postRepository.findAll());
+
+        var list = postRepository.findAll();
+        Collections.sort(list);
+
+        return ResponseEntity.ok(list);
     }
 
     @GetMapping("/topic/{id}")

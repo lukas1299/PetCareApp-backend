@@ -6,6 +6,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -15,7 +16,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SocialPost {
+public class SocialPost implements Comparable<SocialPost> {
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
@@ -34,6 +35,9 @@ public class SocialPost {
     @JoinColumn(name = "profile_id")
     private Profile profile;
 
+    @OneToMany(mappedBy = "socialPost")
+    private List<PostComment> postCommentList;
+
     public static SocialPost fromDto(Profile profile, SocialPostRequest socialPostRequest){
         return SocialPost.builder()
                 .id(UUID.randomUUID())
@@ -44,4 +48,8 @@ public class SocialPost {
                 .build();
     }
 
+    @Override
+    public int compareTo(SocialPost o) {
+        return getDate().compareTo(o.getDate());
+    }
 }

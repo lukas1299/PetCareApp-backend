@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -29,7 +30,10 @@ public class SocialPostController {
         var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         var profile = profileRepository.findByUserId(user.getId()).orElseThrow(() -> new ObjectNotFoundException("Profile does not exist"));
 
-        return ResponseEntity.ok(profile.getSocialPosts());
+        var list = profile.getSocialPosts();
+        Collections.sort(list);
+
+        return ResponseEntity.ok(list);
 
     }
 
@@ -39,7 +43,10 @@ public class SocialPostController {
         var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         var profile = profileRepository.findByUserId(user.getId()).orElseThrow(() -> new ObjectNotFoundException("Profile does not exist"));
 
-        return ResponseEntity.ok(socialPostService.getFriendsPosts(profile));
+        var socialPostsList = socialPostService.getFriendsPosts(profile);
+        Collections.sort(socialPostsList);
+
+        return ResponseEntity.ok(socialPostsList);
 
     }
 
