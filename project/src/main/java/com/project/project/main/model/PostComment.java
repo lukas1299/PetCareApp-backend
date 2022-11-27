@@ -1,10 +1,13 @@
 package com.project.project.main.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import javax.persistence.*;
+import java.time.Instant;
+import java.util.Date;
 import java.util.UUID;
 
-@Table(name = "postComment")
+@Table(name = "post_comment")
 @Entity
 @Getter
 @Setter
@@ -20,17 +23,18 @@ public class PostComment {
     private String content;
 
     @Column(name = "date")
-    private String date;
+    private Date date;
 
+    @JsonIgnore
     @ManyToOne
-    @JoinColumn(name = "social_post_id")
+    @JoinColumn(name = "social_posts_id")
     private SocialPost socialPost;
 
-    public PostComment fromDto(PostCommentRequest postCommentRequest){
+    public static PostComment fromDto(PostCommentRequest postCommentRequest){
         return PostComment.builder()
                 .id(UUID.randomUUID())
                 .content(postCommentRequest.content())
-                .date(postCommentRequest.date())
+                .date(Date.from(Instant.now()))
                 .build();
     }
 
