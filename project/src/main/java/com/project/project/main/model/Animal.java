@@ -35,6 +35,7 @@ public class Animal {
     @OneToMany(mappedBy = "animal", fetch = FetchType.LAZY)
     private List<Event> events;
 
+
     public static Animal fromDto(AnimalRequest animalRequest){
         return Animal.builder()
                 .id(UUID.randomUUID())

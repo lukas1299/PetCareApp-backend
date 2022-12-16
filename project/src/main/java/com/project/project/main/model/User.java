@@ -37,6 +37,10 @@ public class User {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonIgnore
+    private List<PostAssessment> postAssessments;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Topic> topics;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)

@@ -1,5 +1,6 @@
 package com.project.project.main.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.project.project.achievements.model.ProfileAchievement;
 import lombok.*;
 import javax.persistence.*;
@@ -23,12 +24,15 @@ public class Profile {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "profile", fetch = FetchType.LAZY)
     private List<Friend> friends;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "profile")
     private List<ProfileAchievement> profileAchievements;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "profile", fetch = FetchType.LAZY)
     private List<SocialPost> socialPosts;
 

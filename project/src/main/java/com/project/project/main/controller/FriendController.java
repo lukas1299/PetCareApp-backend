@@ -1,5 +1,6 @@
 package com.project.project.main.controller;
 
+import com.project.project.main.model.Friend;
 import com.project.project.main.model.FriendStatus;
 import com.project.project.main.model.User;
 import com.project.project.main.repository.FriendRepository;
@@ -12,7 +13,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,28 +31,32 @@ public class FriendController {
     public ResponseEntity<List<User>> getUserFriends(Authentication authentication) {
 
         var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
-        var profile = profileRepository.findByUserId(user.getId()).orElseThrow(() -> new EntityNotFoundException("Profile does not exists"));
 
-        return ResponseEntity.ok(friendService.getFriend(profile));
+        return ResponseEntity.ok(friendService.getFriend(user));
     }
 
     @GetMapping("/me/waiting")
-    public ResponseEntity<List<User>> getInvitations(Authentication authentication){
+    public ResponseEntity<List<User>> getMyWaitingInvitations(Authentication authentication){
 
         var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
 
         var userProfile = profileRepository.findByUserId(user.getId()).get();
 
-        return ResponseEntity.ok(friendService.getInvitations(userProfile));
+        return ResponseEntity.ok(friendService.getMyWaitingInvitations(userProfile));
     }
 
-    @GetMapping("/{id}/accept")
-    public ResponseEntity<List<User>> acceptInvitation(@PathVariable UUID id, Authentication authentication) throws Exception {
+    @GetMapping("/me/invitations")
+    public ResponseEntity<List<Friend>> getInvitations(Authentication authentication){
 
         var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
-        var userProfile = profileRepository.findByUserId(user.getId()).get();
 
-        var invitation = friendRepository.findByProfileIdAndUserId(userProfile.getId(), id).orElseThrow(() -> new Exception("Invitation does not exists"));
+        return ResponseEntity.ok(friendService.getInvitations(user));
+    }
+
+    @PostMapping("/{id}/accept")
+    public ResponseEntity<String> acceptInvitation(@PathVariable UUID id) throws Exception {
+
+        var invitation = friendRepository.findById(id).orElseThrow(() -> new Exception("Invitation does not exists"));
 
         if(!invitation.getFriendStatus().equals(FriendStatus.WAITING)){
             throw new Exception("Unable to accept");
@@ -61,17 +65,17 @@ public class FriendController {
         invitation.setFriendStatus(FriendStatus.ACCEPTED);
         friendRepository.save(invitation);
 
-        return ResponseEntity.ok(friendService.getFriend(invitation.getProfile()));
+        return ResponseEntity.ok("Accepted");
     }
 
     @PostMapping("/{id}/reject")
-    public ResponseEntity<List<User>> rejectFriend(@PathVariable UUID id) throws Exception {
+    public ResponseEntity<String> rejectFriend(@PathVariable UUID id) throws Exception {
 
         var invitation = friendRepository.findById(id).orElseThrow(() -> new Exception("Invitation does not exists"));
 
         invitation.setFriendStatus(FriendStatus.CANCELED);
         friendRepository.save(invitation);
 
-        return ResponseEntity.ok(friendService.getFriend(invitation.getProfile()));
+        return ResponseEntity.ok("Rejected");
     }
 }

@@ -2,12 +2,15 @@ package com.project.project.main.controller;
 
 import com.project.project.main.model.Day;
 import com.project.project.main.model.Event;
+import com.project.project.main.model.EventDateRequest;
 import com.project.project.main.repository.EventRepository;
+import com.project.project.main.repository.UserRepository;
 import com.project.project.main.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,6 +21,7 @@ import java.util.UUID;
 public class EventController {
 
     private final EventRepository eventRepository;
+    private final UserRepository userRepository;
     private final EventService eventService;
 
     @GetMapping
@@ -31,6 +35,12 @@ public class EventController {
     public ResponseEntity<List<Day>> getFullEventsCalendar(@PathVariable UUID id) {
         var events = eventService.getFullEventCalendar(id);
 
+        return ResponseEntity.ok(events);
+    }
+
+    @PostMapping("/day/{id}/all")
+    public ResponseEntity<List<Event>> getFullEventsCalendarByDay(@PathVariable UUID id, @RequestBody EventDateRequest eventDateRequest) throws ParseException {
+        var events = eventService.getFullEventCalendarByDay(id, eventDateRequest);
         return ResponseEntity.ok(events);
     }
 

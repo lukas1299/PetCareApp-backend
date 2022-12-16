@@ -6,12 +6,14 @@ import com.project.project.forum.model.Topic;
 import com.project.project.forum.repository.PostRepository;
 import com.project.project.forum.repository.TopicRepository;
 import com.project.project.main.exception.AssessmentException;
-import com.project.project.main.model.User;
+import com.project.project.main.model.*;
+import com.project.project.main.repository.PostAssessmentRepository;
 import com.project.project.main.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.PersistenceException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -26,96 +28,67 @@ public class PostService {
     private final TopicRepository topicRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final PostAssessmentRepository postAssessmentRepository;
 
-    public List<Post> getPostsByTopic(UUID id) {
+    public List<PostResponse> getPostsByTopic(UUID id) {
 
         var topic = topicRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Topic does not exists"));
+        var list = postRepository.findByTopic(topic);
 
-        List<Post> list = topic.getPosts();
+        var resultList = new ArrayList<PostResponse>();
 
-        if (list.isEmpty()) {
-            return new ArrayList<>();
-        }
         Collections.sort(list);
 
-        return list;
+        list.forEach(post -> resultList.add(new PostResponse(post, post.getUser().getUsername())));
+
+        return resultList;
     }
 
-    public Topic createPost(UUID topicId, RequestPost requestPost) {
-        var topic = topicRepository.findById(topicId).orElseThrow(() -> new EntityNotFoundException("Topic does not exist"));
-        //TODO test
-        LocalDateTime localDateTime = LocalDateTime.now();
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+    public Topic createPost(UUID topicId, RequestPost requestPost, User user) throws PersistenceException {
 
-        var post = Post.fromDto(requestPost, localDateTime.format(format));
+        var topic = topicRepository.findById(topicId).orElseThrow(() -> new EntityNotFoundException("Topic does not exist"));
+
+        var post = Post.fromDto(requestPost, getCurrentDateTime(), user);
         post.setTopic(topic);
 
-        postRepository.save(post);
-
-        var postList = topic.getPosts();
-
-        if (postList.isEmpty()) {
-            var newPostsList = new ArrayList<Post>();
-            newPostsList.add(post);
-            topic.setPosts(newPostsList);
-        } else {
-            postList.add(post);
-            topic.setPosts(postList);
+        try {
+            postRepository.save(post);
+        } catch (Exception e) {
+            throw new PersistenceException("Error saving post", e);
         }
 
-        return topicRepository.save(topic);
+        topic.addPost(post);
+
+        try {
+            return topicRepository.save(topic);
+        } catch (Exception e) {
+            throw new PersistenceException("Error updating topic", e);
+        }
     }
 
-    public Post realizeLikePost(Post post, User user) {
+    public Post postAssessmentRealization(Post post, User user, String assessmentType) {
 
-        var postAmount = 0;
+        var result = postAssessmentRepository.findByPostAndUser(post, user);
 
-        for (Post p : user.getAssessedPosts()) {
-            if (p.getId() == post.getId()) {
-                postAmount++;
-            }
-        }
-
-        if (postAmount > 0) {
+        if (!result.isEmpty()) {
             throw new AssessmentException();
         }
 
-        post.setUser(user);
-        post.setPositiveOpinionAmount(post.getPositiveOpinionAmount() + 1);
-        postRepository.save(post);
+        var postResult = postRepository.findById(post.getId()).orElseThrow(() -> new EntityNotFoundException("Social post does not exist"));
 
-        var userFavouritePosts = user.getAssessedPosts();
-        userFavouritePosts.add(post);
-        user.setAssessedPosts(userFavouritePosts);
+        switch (assessmentType) {
+            case "like" -> postResult.setPositiveOpinionAmount(postResult.getPositiveOpinionAmount() + 1);
+            case "dislike" -> postResult.setNegativeOpinionAmount(postResult.getNegativeOpinionAmount() + 1);
+        }
 
-        userRepository.save(user);
-        return post;
+        postAssessmentRepository.save(PostAssessment.fromDto(user, postResult));
 
+        return postResult;
     }
 
-    public Post realizeDislikePost(Post post, User user) {
-
-        var postAmount = 0;
-
-        for (Post p : user.getAssessedPosts()) {
-            if (p.getId() == post.getId()) {
-                postAmount++;
-            }
-        }
-
-        if (postAmount > 0) {
-            throw new AssessmentException();
-        }
-
-        post.setUser(user);
-        post.setNegativeOpinionAmount(post.getNegativeOpinionAmount() + 1);
-        postRepository.save(post);
-
-        var userUnfavouredPosts = user.getAssessedPosts();
-        userUnfavouredPosts.add(post);
-        user.setAssessedPosts(userUnfavouredPosts);
-
-        userRepository.save(user);
-        return post;
+    private String getCurrentDateTime() {
+        LocalDateTime localDateTime = LocalDateTime.now();
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        return localDateTime.format(format);
     }
 }

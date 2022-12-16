@@ -2,6 +2,7 @@ package com.project.project.forum.controller;
 
 import com.project.project.forum.model.RequestTopic;
 import com.project.project.forum.model.Topic;
+import com.project.project.forum.model.TopicResponse;
 import com.project.project.forum.repository.TopicRepository;
 import com.project.project.forum.service.TopicService;
 import com.project.project.main.repository.UserRepository;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -25,11 +27,19 @@ public class TopicController {
     private final TopicService topicService;
 
     @GetMapping
-    public ResponseEntity<List<Topic>> getAllTopics(){
-
+    public ResponseEntity<List<TopicResponse>> getAllTopics() {
         var list = topicRepository.findAll();
+
         Collections.sort(list);
-        return ResponseEntity.ok(list);
+
+        var finalList = list.stream()
+                .map(topic -> {
+                    var t = topicRepository.findById(topic.getId()).get();
+                    return new TopicResponse(t, topic.getUser().getUsername());
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(finalList);
     }
 
     @PostMapping("/add")

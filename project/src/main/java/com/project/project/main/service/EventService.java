@@ -2,30 +2,48 @@ package com.project.project.main.service;
 
 import com.project.project.main.model.Day;
 import com.project.project.main.model.Event;
+import com.project.project.main.model.EventDateRequest;
 import com.project.project.main.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class EventService {
 
     private final EventRepository eventRepository;
 
-    public List<Day> getFullEventCalendar(UUID id) {
+    public List<Event> getFullEventCalendarByDay(UUID id, EventDateRequest eventDateRequest) {
 
+        var allAnimalEvents = eventRepository.findByAnimalId(id);
+        var resultList = new ArrayList<Event>();
+
+        allAnimalEvents.forEach(event -> {
+
+            var date = getCalendarWithoutTime(event.getDate());
+
+            if (eventDateRequest.date().compareTo(date.getTime().toString()) == 0) {
+                resultList.add(event);
+            }
+
+        });
+
+        return resultList;
+    }
+
+    public List<Day> getFullEventCalendar(UUID id) {
         ZoneId defaultZoneId = ZoneId.systemDefault();
 
         var allAnimalEvents = eventRepository.findByAnimalId(id);
 
-        Date startDate = Date.from(LocalDate.now().minusMonths(1).atStartOfDay(defaultZoneId).toInstant());
-        Date endDate = Date.from(LocalDate.now().plusMonths(1).atStartOfDay(defaultZoneId).toInstant());
+        Date startDate = Date.from(LocalDate.now().minusMonths(3).atStartOfDay(defaultZoneId).toInstant());
+        Date endDate = Date.from(LocalDate.now().plusMonths(3).atStartOfDay(defaultZoneId).toInstant());
 
         List<Date> datesInRange = new ArrayList<>();
         List<Day> fullEventsList = new ArrayList<>();
@@ -39,9 +57,9 @@ public class EventService {
             calendar.add(Calendar.DATE, 1);
         }
 
-        datesInRange.forEach(date -> {
+        for (Date date : datesInRange) {
             var currentEventList = new ArrayList<Event>();
-            allAnimalEvents.forEach(event -> {
+            for (Event event : allAnimalEvents) {
 
                 Calendar dateCalendar = getCalendarWithoutTime(date);
                 Calendar eventCalendar = getCalendarWithoutTime(event.getDate());
@@ -49,60 +67,49 @@ public class EventService {
                 if (dateCalendar.compareTo(eventCalendar) == 0) {
                     currentEventList.add(event);
                 }
-            });
+            }
 
             fullEventsList.add(new Day(date.toString(), currentEventList));
-        });
+        }
 
         return fullEventsList;
     }
 
     public List<Event> getEventByYear(UUID id, int year) {
-
         var eventList = eventRepository.findByAnimalId(id);
-        List<Event> finalEventsList = new ArrayList<>();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
 
-        eventList.forEach(event -> {
-            try {
-                var date = format.parse(event.getDate().toString());
-                var eventYear = yearFormat.format(date);
+        List<Event> matchingEvents = new ArrayList<>();
 
-                if (eventYear.equals(String.valueOf(year))) {
-                    finalEventsList.add(event);
-                }
+        for (Event event : eventList) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(event.getDate());
+            int eventYear = calendar.get(Calendar.YEAR);
 
-            } catch (ParseException e) {
-                e.printStackTrace();
+            if (eventYear == year) {
+                matchingEvents.add(event);
             }
-        });
+        }
 
-        return finalEventsList;
+        return matchingEvents;
     }
 
     public List<Event> getEventByMonth(UUID id, int month) {
-
         var eventList = eventRepository.findByAnimalId(id);
-        List<Event> finalEventsList = new ArrayList<>();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
 
-        eventList.forEach(event -> {
-            try {
-                var date = format.parse(event.getDate().toString());
-                var eventYear = monthFormat.format(date);
+        List<Event> matchingEvents = new ArrayList<>();
 
-                if (eventYear.equals(String.valueOf(month))) {
-                    finalEventsList.add(event);
-                }
+        for (Event event : eventList) {
 
-            } catch (ParseException e) {
-                e.printStackTrace();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(event.getDate());
+            int eventMonth = calendar.get(Calendar.MONTH);
+
+            if (eventMonth == month) {
+                matchingEvents.add(event);
             }
-        });
+        }
 
-        return finalEventsList;
+        return matchingEvents;
     }
 
     private static Calendar getCalendarWithoutTime(Date date) {
@@ -115,7 +122,6 @@ public class EventService {
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar;
     }
-
 }
 
 

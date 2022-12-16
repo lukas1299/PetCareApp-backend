@@ -1,9 +1,11 @@
 package com.project.project.forum.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.project.project.main.model.PostAssessment;
 import com.project.project.main.model.User;
 import lombok.*;
 import javax.persistence.*;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -35,16 +37,21 @@ public class Post implements Comparable<Post> {
     @JsonIgnore
     private Topic topic;
 
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<PostAssessment> postAssessments;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
 
-    public static Post fromDto(RequestPost requestPost, String date){
+    public static Post fromDto(RequestPost requestPost, String date, User user){
         return Post.builder()
                 .id(UUID.randomUUID())
                 .postCreationDate(date)
                 .message(requestPost.message())
+                .user(user)
                 .build();
     }
 

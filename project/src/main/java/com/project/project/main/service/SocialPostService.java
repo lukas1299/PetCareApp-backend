@@ -1,13 +1,18 @@
 package com.project.project.main.service;
 
+import com.project.project.main.exception.AssessmentException;
 import com.project.project.main.exception.ObjectNotFoundException;
 import com.project.project.main.model.*;
 import com.project.project.main.repository.ProfileRepository;
 import com.project.project.main.repository.SocialPostRepository;
+import com.project.project.main.repository.SocialPostsAssessmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import javax.persistence.EntityNotFoundException;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -15,23 +20,50 @@ public class SocialPostService {
 
     private final ProfileRepository profileRepository;
     private final SocialPostRepository socialPostRepository;
+    private final FriendService friendService;
+    private final SocialPostsAssessmentRepository socialPostsAssessmentRepository;
 
-    public SocialPost createSocialPost(User user, SocialPostRequest socialPostRequest){
+    public SocialPost createSocialPost(User user, SocialPostRequest socialPostRequest) {
 
         var profile = profileRepository.findByUserId(user.getId()).orElseThrow(() -> new ObjectNotFoundException("Profile does not exist"));
 
         var socialPost = SocialPost.fromDto(profile, socialPostRequest);
         return socialPostRepository.save(socialPost);
-
     }
 
-    public ArrayList<SocialPost> getFriendsPosts(Profile profile){
-        var friendsPostList = new ArrayList<SocialPost>();
+    public List<SocialPost> getFriendsPosts(Profile profile) {
 
-        for (Friend friend : profile.getFriends()) {
-            var friendPosts = profileRepository.findByUserId(friend.getUser().getId()).orElseThrow(() -> new ObjectNotFoundException("Profile does not exist")).getSocialPosts();
-            friendsPostList.addAll(friendPosts);
+        var list = friendService.getFriend(profile.getUser());
+        list.add(profile.getUser());
+
+        return list.stream()
+                .map(friend -> profileRepository.findByUserId(friend.getId()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(Profile::getSocialPosts)
+                .flatMap(List::stream)
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
+    public SocialPost assessmentRealization(User user, SocialPost socialPost, String assessmentType) {
+        var profile = profileRepository.findByUserId(user.getId()).orElseThrow(() -> new ObjectNotFoundException("Profile does not exist"));
+
+        var result = socialPostsAssessmentRepository.findByProfileAndSocialPost(profile, socialPost);
+
+        if (!result.isEmpty()) {
+            throw new AssessmentException();
         }
-        return friendsPostList;
+
+        var socialPostResult = socialPostRepository.findById(socialPost.getId()).orElseThrow(() -> new EntityNotFoundException("Social post does not exist"));
+
+        switch (assessmentType) {
+            case "like" -> socialPostResult.setPositiveOpinionAmount(socialPostResult.getPositiveOpinionAmount() + 1);
+            case "dislike" -> socialPostResult.setNegativeOpinionAmount(socialPostResult.getNegativeOpinionAmount() + 1);
+        }
+
+        socialPostsAssessmentRepository.save(SocialPostsAssessment.fromDto(profile, socialPostResult));
+
+        return socialPostResult;
     }
 }

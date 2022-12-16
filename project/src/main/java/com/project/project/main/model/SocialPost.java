@@ -30,10 +30,20 @@ public class SocialPost implements Comparable<SocialPost> {
     @Column(name = "date")
     private Date date;
 
+    @Column(name = "positive_opinion_amount")
+    private int positiveOpinionAmount;
+
+    @Column(name = "negative_opinion_amount")
+    private int negativeOpinionAmount;
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "profile_id")
     private Profile profile;
+
+    @OneToMany(mappedBy = "socialPost", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<SocialPostsAssessment> socialPostsAssessments;
 
     @OneToMany(mappedBy = "socialPost")
     private List<PostComment> postCommentList;
@@ -44,6 +54,8 @@ public class SocialPost implements Comparable<SocialPost> {
                 .title(socialPostRequest.title())
                 .content(socialPostRequest.content())
                 .date(Date.from(Instant.now()))
+                .positiveOpinionAmount(0)
+                .negativeOpinionAmount(0)
                 .profile(profile)
                 .build();
     }

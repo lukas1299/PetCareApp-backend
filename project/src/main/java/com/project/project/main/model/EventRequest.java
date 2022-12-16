@@ -1,4 +1,4 @@
 package com.project.project.main.model;
 
-public record EventRequest(String animalName, String name, EventType eventType) {
+public record EventRequest(String name, EventType eventType, String frequency, String date) {
 }
