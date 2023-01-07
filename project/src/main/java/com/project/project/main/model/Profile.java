@@ -1,6 +1,7 @@
 package com.project.project.main.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.project.project.achievements.model.ProfileAchievement;
 import lombok.*;
 import javax.persistence.*;
@@ -22,6 +23,7 @@ public class Profile {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User user;
 
     @JsonIgnore

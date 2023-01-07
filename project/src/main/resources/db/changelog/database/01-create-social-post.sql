@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS social_posts(
    date VARCHAR(32),
    negative_opinion_amount INT,
    positive_opinion_amount INT,
+   photo BYTEA,
    profile_id UUID
    );
 

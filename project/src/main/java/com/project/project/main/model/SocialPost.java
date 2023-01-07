@@ -2,8 +2,10 @@ package com.project.project.main.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -36,9 +38,13 @@ public class SocialPost implements Comparable<SocialPost> {
     @Column(name = "negative_opinion_amount")
     private int negativeOpinionAmount;
 
+    @Type(type="org.hibernate.type.BinaryType")
+    private byte[] photo;
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "profile_id")
+
     private Profile profile;
 
     @OneToMany(mappedBy = "socialPost", fetch = FetchType.LAZY)
@@ -48,7 +54,7 @@ public class SocialPost implements Comparable<SocialPost> {
     @OneToMany(mappedBy = "socialPost")
     private List<PostComment> postCommentList;
 
-    public static SocialPost fromDto(Profile profile, SocialPostRequest socialPostRequest){
+    public static SocialPost fromDto(Profile profile, SocialPostRequest socialPostRequest, byte[] file) throws IOException {
         return SocialPost.builder()
                 .id(UUID.randomUUID())
                 .title(socialPostRequest.title())
@@ -56,6 +62,7 @@ public class SocialPost implements Comparable<SocialPost> {
                 .date(Date.from(Instant.now()))
                 .positiveOpinionAmount(0)
                 .negativeOpinionAmount(0)
+                .photo(file)
                 .profile(profile)
                 .build();
     }

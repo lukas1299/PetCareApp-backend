@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS animals(
    type VARCHAR(32),
    weight INT,
    gender VARCHAR(32),
+   photo BYTEA,
    name VARCHAR(32),
    user_id UUID);
 

@@ -1,11 +1,14 @@
 package com.project.project.main.service;
 
+
 import com.project.project.main.model.*;
 import com.project.project.main.repository.AnimalRepository;
 import com.project.project.main.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,9 +22,9 @@ public class AnimalService {
     private final EventRepository eventRepository;
     private final AnimalRepository animalRepository;
 
-    public Animal createAnimal(AnimalRequest animalRequest, User user) {
+    public Animal createAnimal(AnimalRequest animalRequest, User user, MultipartFile file) throws IOException {
 
-        var animal = Animal.fromDto(animalRequest);
+        var animal = Animal.fromDto(animalRequest, file.getBytes());
         animal.setUser(user);
 
         var userAnimalsList = user.getAnimals();

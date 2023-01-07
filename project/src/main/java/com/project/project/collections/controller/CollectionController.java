@@ -46,9 +46,7 @@ public class CollectionController {
         var collection = collectionRepository.findById(id).orElseThrow(() -> new Exception("Collection does not exist"));
 
         return collectionHistoryRepository.findByCollection_id(collection.getId());
-
     }
-
 
     @PostMapping("/{id}/user/add")
     public ResponseEntity<Collection> addCollection(@RequestBody CollectionRequest collectionRequest, Authentication authentication) throws Exception {

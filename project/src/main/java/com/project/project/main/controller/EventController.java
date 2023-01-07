@@ -1,22 +1,24 @@
 package com.project.project.main.controller;
 
-import com.project.project.main.model.Day;
-import com.project.project.main.model.Event;
-import com.project.project.main.model.EventDateRequest;
+import com.project.project.main.model.*;
 import com.project.project.main.repository.EventRepository;
 import com.project.project.main.repository.UserRepository;
 import com.project.project.main.service.EventService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin
+@Slf4j
 @RequestMapping("/events")
 public class EventController {
 
@@ -34,7 +36,6 @@ public class EventController {
     @GetMapping("/{id}/all")
     public ResponseEntity<List<Day>> getFullEventsCalendar(@PathVariable UUID id) {
         var events = eventService.getFullEventCalendar(id);
-
         return ResponseEntity.ok(events);
     }
 
@@ -48,6 +49,21 @@ public class EventController {
     public ResponseEntity<List<Event>> getEventsByAnimal(@PathVariable UUID id) {
         var events = eventRepository.findByAnimalId(id);
         return ResponseEntity.ok(events);
+    }
+
+    @GetMapping("/animals/all")
+    public ResponseEntity<List<EventResponse>> getAllAnimalsEvents(Authentication authentication){
+
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+        var animals = user.getAnimals();
+
+        var resultList = animals.stream()
+                .flatMap(animal -> eventRepository.findByAnimalId(animal.getId()).stream())
+                .map(event -> new EventResponse(event.getDate().toString(), event))
+                .sorted(Comparator.comparing(EventResponse::date))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(resultList);
     }
 
     @GetMapping("{id}/animals/event/year")

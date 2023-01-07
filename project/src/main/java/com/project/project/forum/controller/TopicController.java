@@ -35,7 +35,7 @@ public class TopicController {
         var finalList = list.stream()
                 .map(topic -> {
                     var t = topicRepository.findById(topic.getId()).get();
-                    return new TopicResponse(t, topic.getUser().getUsername());
+                    return new TopicResponse(t, topic.getUser().getUsername(), topic.getUser().getPhoto());
                 })
                 .collect(Collectors.toList());
 

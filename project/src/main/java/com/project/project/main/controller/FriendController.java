@@ -73,8 +73,7 @@ public class FriendController {
 
         var invitation = friendRepository.findById(id).orElseThrow(() -> new Exception("Invitation does not exists"));
 
-        invitation.setFriendStatus(FriendStatus.CANCELED);
-        friendRepository.save(invitation);
+        friendRepository.delete(invitation);
 
         return ResponseEntity.ok("Rejected");
     }

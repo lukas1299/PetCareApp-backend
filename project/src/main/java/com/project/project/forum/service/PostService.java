@@ -27,7 +27,6 @@ public class PostService {
 
     private final TopicRepository topicRepository;
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
     private final PostAssessmentRepository postAssessmentRepository;
 
     public List<PostResponse> getPostsByTopic(UUID id) {

@@ -1,10 +1,12 @@
 package com.project.project.main.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.project.project.collections.model.CollectionHistory;
 import com.project.project.forum.model.Post;
 import com.project.project.forum.model.Topic;
 import lombok.*;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.List;
@@ -30,6 +32,9 @@ public class User {
 
     @Column(name = "password")
     private String password;
+
+    @Type(type="org.hibernate.type.BinaryType")
+    private byte[] photo;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @JsonIgnore
@@ -64,12 +69,13 @@ public class User {
     @JsonIgnore
     private List<UserRole> userRoles;
 
-    public static User fromDto(UserRequest userRequest) {
+    public static User fromDto(UserRequest userRequest, byte[] file) {
         return User.builder()
                 .id(UUID.randomUUID())
                 .email(userRequest.email().toLowerCase())
                 .username(userRequest.username().toLowerCase())
                 .password(userRequest.password())
+                .photo(file)
                 .build();
     }
 }

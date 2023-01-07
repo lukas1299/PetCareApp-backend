@@ -8,8 +8,10 @@ import com.project.project.main.repository.SocialPostRepository;
 import com.project.project.main.repository.SocialPostsAssessmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,11 +25,12 @@ public class SocialPostService {
     private final FriendService friendService;
     private final SocialPostsAssessmentRepository socialPostsAssessmentRepository;
 
-    public SocialPost createSocialPost(User user, SocialPostRequest socialPostRequest) {
+    public SocialPost createSocialPost(User user, SocialPostRequest socialPostRequest, MultipartFile file) throws IOException {
 
         var profile = profileRepository.findByUserId(user.getId()).orElseThrow(() -> new ObjectNotFoundException("Profile does not exist"));
 
-        var socialPost = SocialPost.fromDto(profile, socialPostRequest);
+        var socialPost = SocialPost.fromDto(profile, socialPostRequest, file == null ? null : file.getBytes());
+
         return socialPostRepository.save(socialPost);
     }
 

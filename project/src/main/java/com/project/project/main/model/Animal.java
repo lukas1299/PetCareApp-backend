@@ -2,6 +2,7 @@ package com.project.project.main.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.List;
@@ -24,6 +25,10 @@ public class Animal {
     private int age;
     private Double weight;
 
+    @Type(type="org.hibernate.type.BinaryType")
+    @JsonIgnore
+    private byte[] photo;
+
     @Column(name = "gender")
     private AnimalGender animalGender;
 
@@ -36,13 +41,14 @@ public class Animal {
     private List<Event> events;
 
 
-    public static Animal fromDto(AnimalRequest animalRequest){
+    public static Animal fromDto(AnimalRequest animalRequest, byte[] bytes){
         return Animal.builder()
                 .id(UUID.randomUUID())
                 .name(animalRequest.name())
                 .type(animalRequest.animalType())
                 .age(animalRequest.age())
                 .weight(animalRequest.weight())
+                .photo(bytes)
                 .animalGender(animalRequest.gender())
                 .build();
     }
