@@ -46,14 +46,14 @@ public class ProfileService {
 
         var me = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new Exception("User does not exist"));
 
-        var profile = profileRepository.findByUserId(me.getId()).orElseThrow(() -> new Exception("Profile does not exist"));
+        var myProfile = profileRepository.findByUserId(me.getId()).orElseThrow(() -> new Exception("Profile does not exist"));
+        var userProfile = profileRepository.findByUserId(user.getId()).orElseThrow(() -> new Exception("Profile does not exist"));
 
-        if (friendRepository.findByProfileIdAndUserId(profile.getId(), user.getId()).isPresent()) {
+        if (friendRepository.findByProfileAndUser(myProfile, user).isPresent() || friendRepository.findByProfileAndUser(userProfile, me).isPresent()) {
             throw new Exception("Friend currently exist");
         }
 
-        friendRepository.save(Friend.fromDto(user, profile));
-
+        friendRepository.save(Friend.fromDto(user, myProfile));
     }
 
     public void deleteUserFromFriends(Authentication authentication, FriendRequest friendRequest) throws Exception {
@@ -62,7 +62,7 @@ public class ProfileService {
         var me = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new Exception("User does not exist"));
         var profile = profileRepository.findByUserId(me.getId()).orElseThrow(() -> new Exception("Profile does not exist"));
 
-        var friend = friendRepository.findByProfileIdAndUserId(profile.getId(), user.getId()).orElseThrow(() -> new Exception("User does not exist"));
+        var friend = friendRepository.findByProfileAndUser(profile, user).orElseThrow(() -> new Exception("User does not exist"));
 
         friendRepository.delete(friend);
     }

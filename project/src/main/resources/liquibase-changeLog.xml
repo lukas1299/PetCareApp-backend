@@ -21,5 +21,7 @@ http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd">
     <include file="db/changelog/database/01-create-post.sql"/>
     <include file="db/changelog/database/01-create-animal.sql"/>
     <include file="db/changelog/database/01-create-event.sql"/>
+    <include file="db/changelog/database/01-create-social-post-assessment.sql"/>
+    <include file="db/changelog/database/01-create-post-assessment.sql"/>
 
 </databaseChangeLog>

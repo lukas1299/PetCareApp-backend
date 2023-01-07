@@ -1,21 +1,27 @@
 package com.project.project.main.controller;
 
-import com.project.project.main.model.Animal;
-import com.project.project.main.model.AnimalRequest;
-import com.project.project.main.model.Event;
-import com.project.project.main.model.EventRequest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.project.main.exception.EntityAlreadyExistsException;
+import com.project.project.main.model.*;
 import com.project.project.main.repository.AnimalRepository;
+import com.project.project.main.repository.EventRepository;
 import com.project.project.main.repository.UserRepository;
 import com.project.project.main.service.AnimalService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @CrossOrigin
@@ -26,6 +32,8 @@ public class AnimalController {
     private final AnimalRepository animalRepository;
     private final UserRepository userRepository;
     private final AnimalService animalService;
+    private final EventRepository eventRepository;
+    private final ObjectMapper objectMapper;
 
     @GetMapping
     public ResponseEntity<List<Animal>> getAnimals() {
@@ -40,19 +48,47 @@ public class AnimalController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Animal> createAnimal(@RequestBody AnimalRequest requestAnimal, Authentication authentication) {
+    public ResponseEntity<Animal> createAnimal(@RequestParam("file") MultipartFile file, @RequestParam("json") String json, Authentication authentication) throws IOException {
+
+        var requestAnimal = objectMapper.readValue(json, AnimalRequest.class);
 
         var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
-        var animal = animalService.createAnimal(requestAnimal, user);
+        var animal = animalService.createAnimal(requestAnimal, user, file);
         return new ResponseEntity<>(animal, HttpStatus.CREATED);
     }
 
-    @PostMapping("/events/add")
-    public ResponseEntity<Event> addEvent(@RequestBody EventRequest eventRequest) {
+    @DeleteMapping("/{id}/delete")
+    public void deleteAnimal(@PathVariable("id") UUID id){
+        var animal = animalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
+        eventRepository.deleteAll(animal.getEvents());
+        animalRepository.delete(animal);
+    }
 
-        var animal = animalRepository.findByName(eventRequest.animalName()).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
+    @GetMapping("/{id}/image")
+    public ResponseEntity<byte[]> getAnimalImage(@PathVariable UUID id) {
+        var animal = animalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + animal.getName() + "\"")
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(animal.getPhoto());
+    }
+
+    @PostMapping("/{id}/events/add")
+    public ResponseEntity<List<Event>> addEvent(@PathVariable UUID id, @RequestBody EventRequest eventRequest) throws Exception {
+
+        var animal = animalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
+        var tempEvent = eventRepository.findByNameAndAnimalId(eventRequest.name(), id);
+        if(!tempEvent.isEmpty()){
+            throw new EntityAlreadyExistsException("Event already exists");
+        }
         var event = animalService.addEventToAnimal(animal, eventRequest);
         return new ResponseEntity<>(event, HttpStatus.CREATED);
     }
 
+    @DeleteMapping("/events/delete")
+    public ResponseEntity<List<Event>> deleteEvent(@RequestBody EventDeleteRequest eventRequest) {
+
+        return ResponseEntity.ok(animalService.removeEvents(eventRequest));
+    }
 }

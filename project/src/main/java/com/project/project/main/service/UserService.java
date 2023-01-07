@@ -7,9 +7,11 @@ import com.project.project.main.repository.UserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -21,10 +23,11 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRoleRepository userRoleRepository;
     private final RoleRepository roleRepository;
+    private final FriendService friendService;
 
-    public User createUser(UserRequest userRequest) throws Exception {
+    public User createUser(UserRequest userRequest, MultipartFile file) throws Exception {
 
-        var user = User.fromDto(userRequest);
+        var user =  User.fromDto(userRequest, file == null ? null : file.getBytes());
 
         if(userRepository.findByUsernameOrEmail(userRequest.username(), userRequest.email()).isPresent()){
             throw new Exception("User currently exist");
@@ -53,4 +56,12 @@ public class UserService {
         return newUser;
     }
 
+    public List<User> getNonFriendsUsers(User user) {
+        var userFriends = friendService.getFriend(user);
+
+        return userRepository.findAll().stream()
+                .filter(u -> !u.getId().equals(user.getId()))
+                .filter(friend -> userFriends.stream().noneMatch(randomUser -> randomUser.getId().equals(friend.getId())))
+                .toList();
+    }
 }

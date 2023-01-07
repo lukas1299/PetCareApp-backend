@@ -1,10 +1,12 @@
 package com.project.project.forum.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.project.project.main.model.User;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,6 +40,13 @@ public class Topic implements Comparable<Topic> {
     @Override
     public int compareTo(Topic o) {
         return getCreationDate().compareTo(o.getCreationDate());
+    }
+
+    public void addPost(Post post) {
+        if (posts == null) {
+            posts = new ArrayList<>();
+        }
+        posts.add(post);
     }
 
     public static Topic fromDto(RequestTopic requestTopic, String creationDate) {

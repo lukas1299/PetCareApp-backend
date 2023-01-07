@@ -5,6 +5,8 @@ import com.project.project.forum.model.RequestPost;
 import com.project.project.forum.model.Topic;
 import com.project.project.forum.repository.PostRepository;
 import com.project.project.forum.service.PostService;
+import com.project.project.main.model.PostResponse;
+import com.project.project.main.repository.PostAssessmentRepository;
 import com.project.project.main.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +29,7 @@ public class PostController {
     private final PostRepository postRepository;
     private final PostService postService;
     private final UserRepository userRepository;
+    private final PostAssessmentRepository postAssessmentRepository;
 
     @GetMapping("/all")
     public ResponseEntity<List<Post>> getAllPosts() {
@@ -38,8 +41,7 @@ public class PostController {
     }
 
     @GetMapping("/topic/{id}")
-    public ResponseEntity<List<Post>> getAllPostsByTopic(@PathVariable UUID id) {
-
+    public ResponseEntity<List<PostResponse>> getAllPostsByTopic(@PathVariable UUID id) {
         return ResponseEntity.ok(postService.getPostsByTopic(id));
     }
 
@@ -50,24 +52,25 @@ public class PostController {
     }
 
     @PostMapping("/add/{topicId}")
-    public ResponseEntity<Topic> createPost(@PathVariable UUID topicId, @RequestBody RequestPost requestPost) {
-        return new ResponseEntity<>(postService.createPost(topicId, requestPost), HttpStatus.CREATED);
+    public ResponseEntity<Topic> createPost(Authentication authentication, @PathVariable UUID topicId, @RequestBody RequestPost requestPost) {
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+        return new ResponseEntity<>(postService.createPost(topicId, requestPost, user), HttpStatus.CREATED);
     }
 
-    @PostMapping("/like/{id}")
-    public ResponseEntity<Post> realizeLikePost(@PathVariable UUID id, Authentication authentication) {
+    @PostMapping("/{id}/{type}/assess")
+    public ResponseEntity<Post> realizeLikePost(Authentication authentication, @PathVariable UUID id, @PathVariable String type) {
         var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         var post = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Post does not exist"));
 
-        return ResponseEntity.ok(postService.realizeLikePost(post, user));
+        return ResponseEntity.ok(postService.postAssessmentRealization(post, user, type));
     }
 
-    @PostMapping("/dislike/{id}")
-    public ResponseEntity<Post> realizeDislikePost(@PathVariable UUID id, Authentication authentication) {
-        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+    @DeleteMapping("/{id}/remove")
+    public void removePost(@PathVariable UUID id){
+
         var post = postRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Post does not exist"));
-
-        return ResponseEntity.ok(postService.realizeDislikePost(post, user));
+        var postAssessmentList = postAssessmentRepository.findByPost(post);
+        postAssessmentRepository.deleteAll(postAssessmentList);
+        postRepository.delete(post);
     }
-
 }

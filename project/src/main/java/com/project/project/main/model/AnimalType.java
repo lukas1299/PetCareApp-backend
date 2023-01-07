@@ -1,5 +1,5 @@
 package com.project.project.main.model;
 
 public enum AnimalType {
-    SHAGGY
+    DOGS, CATS, BIRDS, FISH, REPTILES, OTHER
 }

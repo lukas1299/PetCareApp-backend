@@ -31,7 +31,7 @@ public class ProfileController {
     private ResponseEntity<List<Friend>> getUserFriends(Authentication authentication) {
         var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         var profile = profileRepository.findByUserId(user.getId()).orElseThrow(() -> new ObjectNotFoundException("Profile does not exist"));
-        var friendsList = friendRepository.findByProfile_id(profile.getId());
+        var friendsList = friendRepository.findByProfile(profile);
 
         return ResponseEntity.ok(friendsList);
     }
