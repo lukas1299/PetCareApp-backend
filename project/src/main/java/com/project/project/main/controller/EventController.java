@@ -59,7 +59,7 @@ public class EventController {
 
         var resultList = animals.stream()
                 .flatMap(animal -> eventRepository.findByAnimalId(animal.getId()).stream())
-                .map(event -> new EventResponse(event.getDate().toString(), event))
+                .map(event -> new EventResponse(event.getDate().toString(), event, event.getAnimal()))
                 .sorted(Comparator.comparing(EventResponse::date))
                 .collect(Collectors.toList());
 

@@ -39,4 +39,10 @@ public class FriendService {
                 .collect(Collectors.toList());
     }
 
+    public List<Friend> removeFriend(User user) {
+        return friendRepository.findAll().stream()
+                .filter(friend -> friend.getUser().getId().equals(user.getId()) || friend.getProfile().getUser().getId().equals(user.getId()))
+                .filter(friend -> friend.getFriendStatus().equals(FriendStatus.ACCEPTED)).toList();
+    }
+
 }

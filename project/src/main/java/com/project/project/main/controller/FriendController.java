@@ -53,6 +53,13 @@ public class FriendController {
         return ResponseEntity.ok(friendService.getInvitations(user));
     }
 
+    @GetMapping("/{id}/user")
+    public ResponseEntity<List<User>> getUserFriends(@PathVariable("id") UUID id){
+        var user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+
+        return ResponseEntity.ok(friendService.getFriend(user));
+    }
+
     @PostMapping("/{id}/accept")
     public ResponseEntity<String> acceptInvitation(@PathVariable UUID id) throws Exception {
 
@@ -66,6 +73,14 @@ public class FriendController {
         friendRepository.save(invitation);
 
         return ResponseEntity.ok("Accepted");
+    }
+
+    @DeleteMapping("/{id}/removeFriend")
+    public ResponseEntity<String> removeFriend(@PathVariable("id") UUID id) throws Exception {
+        var user = userRepository.findById(id).orElseThrow(() -> new Exception("User does not exists"));
+        var list =  friendService.removeFriend(user);
+        friendRepository.deleteAll(list);
+        return ResponseEntity.ok("Removed");
     }
 
     @PostMapping("/{id}/reject")
