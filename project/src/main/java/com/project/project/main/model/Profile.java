@@ -2,7 +2,6 @@ package com.project.project.main.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.project.project.achievements.model.ProfileAchievement;
 import lombok.*;
 import javax.persistence.*;
 import java.util.List;
@@ -29,10 +28,6 @@ public class Profile {
     @JsonIgnore
     @OneToMany(mappedBy = "profile", fetch = FetchType.LAZY)
     private List<Friend> friends;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "profile")
-    private List<ProfileAchievement> profileAchievements;
 
     @JsonIgnore
     @OneToMany(mappedBy = "profile", fetch = FetchType.LAZY)

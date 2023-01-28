@@ -15,13 +15,14 @@ http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd">
     <include file="db/changelog/database/01-create-friend.sql"/>
     <include file="db/changelog/database/01-create-collection.sql"/>
     <include file="db/changelog/database/01-create-collection-history.sql"/>
-    <include file="db/changelog/database/01-create-achievement.sql"/>
-    <include file="db/changelog/database/01-create-profile-achievement.sql"/>
     <include file="db/changelog/database/01-create-topic.sql"/>
     <include file="db/changelog/database/01-create-post.sql"/>
     <include file="db/changelog/database/01-create-animal.sql"/>
     <include file="db/changelog/database/01-create-event.sql"/>
     <include file="db/changelog/database/01-create-social-post-assessment.sql"/>
-    <include file="db/changelog/database/01-create-post-assessment.sql"/>
+    <include file="db/changelog/database/01-create-quiz.sql"/>
+    <include file="db/changelog/database/01-create-quiz-questions.sql"/>
+    <include file="db/changelog/database/01-create-quiz-answers.sql"/>
+    <include file="db/changelog/database/01-create-quiz-results.sql"/>
 
 </databaseChangeLog>

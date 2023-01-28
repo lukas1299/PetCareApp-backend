@@ -38,7 +38,7 @@ public class PostService {
 
         Collections.sort(list);
 
-        list.forEach(post -> resultList.add(new PostResponse(post, post.getUser().getUsername())));
+        list.forEach(post -> resultList.add(new PostResponse(post, post.getUser().getUsername(), post.getUser().getPhoto())));
 
         return resultList;
     }

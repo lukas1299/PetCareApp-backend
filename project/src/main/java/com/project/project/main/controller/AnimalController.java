@@ -40,6 +40,19 @@ public class AnimalController {
         return ResponseEntity.ok(animalRepository.findAll());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Animal> getAnimalById(@PathVariable("id") UUID id) {
+        var animal = animalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
+        return ResponseEntity.ok(animal);
+    }
+
+    @GetMapping("/{id}/user")
+    public ResponseEntity<List<Animal>> getUserAnimal(@PathVariable("id") UUID id) throws Exception {
+        var user = userRepository.findById(id).orElseThrow(() -> new Exception("User does not exists"));
+        var list = animalRepository.findByUser(user);
+        return ResponseEntity.ok(list);
+    }
+
     @GetMapping("/me")
     public ResponseEntity<List<Animal>> getUserAnimals(Authentication authentication) {
 
@@ -51,14 +64,46 @@ public class AnimalController {
     public ResponseEntity<Animal> createAnimal(@RequestParam("file") MultipartFile file, @RequestParam("json") String json, Authentication authentication) throws IOException {
 
         var requestAnimal = objectMapper.readValue(json, AnimalRequest.class);
-
         var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         var animal = animalService.createAnimal(requestAnimal, user, file);
         return new ResponseEntity<>(animal, HttpStatus.CREATED);
     }
 
+    @PutMapping("/{id}/update")
+    public ResponseEntity<Animal> updateAnimal(@PathVariable("id") UUID id, @RequestParam("file") MultipartFile file, @RequestParam("json") String json) throws IOException {
+
+        var animal = animalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
+        var requestAnimal = objectMapper.readValue(json, AnimalRequest.class);
+        animal.setName(requestAnimal.name());
+        animal.setWeight(requestAnimal.weight());
+        animal.setAge(requestAnimal.age());
+        animal.setType(requestAnimal.animalType());
+        animal.setAnimalGender(requestAnimal.gender());
+        animal.setPhoto(file.getBytes());
+        animalRepository.save(animal);
+        return new ResponseEntity<>(animal, HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/events/add")
+    public ResponseEntity<List<Event>> addEvent(@PathVariable UUID id, @RequestBody EventRequest eventRequest) throws Exception {
+
+        var animal = animalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
+        var tempEvent = eventRepository.findByNameAndAnimalId(eventRequest.name(), id);
+        if (!tempEvent.isEmpty()) {
+            throw new EntityAlreadyExistsException("Event already exists");
+        }
+        var event = animalService.addEventToAnimal(animal, eventRequest);
+        return new ResponseEntity<>(event, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/events/delete")
+    public ResponseEntity<List<Event>> deleteEvent(@RequestBody EventDeleteRequest eventRequest) {
+
+        return ResponseEntity.ok(animalService.removeEvents(eventRequest));
+    }
+
     @DeleteMapping("/{id}/delete")
-    public void deleteAnimal(@PathVariable("id") UUID id){
+    public void deleteAnimal(@PathVariable("id") UUID id) {
         var animal = animalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
         eventRepository.deleteAll(animal.getEvents());
         animalRepository.delete(animal);
@@ -74,21 +119,13 @@ public class AnimalController {
                 .body(animal.getPhoto());
     }
 
-    @PostMapping("/{id}/events/add")
-    public ResponseEntity<List<Event>> addEvent(@PathVariable UUID id, @RequestBody EventRequest eventRequest) throws Exception {
+    @PostMapping("/{name}/find")
+    public ResponseEntity<?> findAnimal(@PathVariable(value = "name") String name, Authentication authentication) {
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+        var list = animalRepository.findByUser(user).stream()
+                .filter(animal -> animal.getName().toLowerCase().contains(name.toLowerCase()) || animal.getType().toString().toLowerCase().contains(name.toLowerCase()))
+                .toList();
 
-        var animal = animalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
-        var tempEvent = eventRepository.findByNameAndAnimalId(eventRequest.name(), id);
-        if(!tempEvent.isEmpty()){
-            throw new EntityAlreadyExistsException("Event already exists");
-        }
-        var event = animalService.addEventToAnimal(animal, eventRequest);
-        return new ResponseEntity<>(event, HttpStatus.CREATED);
-    }
-
-    @DeleteMapping("/events/delete")
-    public ResponseEntity<List<Event>> deleteEvent(@RequestBody EventDeleteRequest eventRequest) {
-
-        return ResponseEntity.ok(animalService.removeEvents(eventRequest));
+        return ResponseEntity.ok(list);
     }
 }

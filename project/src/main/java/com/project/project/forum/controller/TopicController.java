@@ -12,8 +12,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
+import javax.persistence.EntityNotFoundException;
+import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -28,9 +30,7 @@ public class TopicController {
 
     @GetMapping
     public ResponseEntity<List<TopicResponse>> getAllTopics() {
-        var list = topicRepository.findAll();
-
-        Collections.sort(list);
+        var list = topicRepository.findAll().stream().sorted(Comparator.comparing(Topic::getCreationDate).reversed()).toList();
 
         var finalList = list.stream()
                 .map(topic -> {
@@ -38,8 +38,21 @@ public class TopicController {
                     return new TopicResponse(t, topic.getUser().getUsername(), topic.getUser().getPhoto());
                 })
                 .collect(Collectors.toList());
-
         return ResponseEntity.ok(finalList);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<List<Topic>> getMyTopics(Authentication authentication) {
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+        var result = topicRepository.findByUser(user);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Topic> getTopicById(@PathVariable("id") UUID id) {
+
+        var topic = topicRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Topic does not exist"));
+        return ResponseEntity.ok(topic);
     }
 
     @PostMapping("/add")
@@ -47,5 +60,14 @@ public class TopicController {
 
         var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         return ResponseEntity.ok(topicService.createTopic(user, requestTopic));
+    }
+
+    @GetMapping("/{title}/find")
+    public ResponseEntity<List<TopicResponse>> findTopicsByTitle(@PathVariable("title") String title) {
+        List<Topic> list = topicRepository.findByTitleContainingIgnoreCase(title);
+        List<TopicResponse> result = list.stream()
+                .map(topic -> new TopicResponse(topic, topic.getUser().getUsername(), topic.getUser().getPhoto()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(result);
     }
 }

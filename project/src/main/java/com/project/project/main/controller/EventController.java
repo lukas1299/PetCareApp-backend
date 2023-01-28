@@ -5,7 +5,6 @@ import com.project.project.main.repository.EventRepository;
 import com.project.project.main.repository.UserRepository;
 import com.project.project.main.service.EventService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,7 +17,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin
-@Slf4j
 @RequestMapping("/events")
 public class EventController {
 
@@ -45,10 +43,16 @@ public class EventController {
         return ResponseEntity.ok(events);
     }
 
-    @GetMapping("/{id}/animals")
-    public ResponseEntity<List<Event>> getEventsByAnimal(@PathVariable UUID id) {
-        var events = eventRepository.findByAnimalId(id);
-        return ResponseEntity.ok(events);
+    @GetMapping("/animals/{id}/all")
+    public ResponseEntity<List<EventResponse>> getEventsByAnimal(@PathVariable UUID id) {
+        var events = eventRepository.findByAnimalId(id).stream().sorted(Comparator.comparing(Event::getDate)).toList();
+        var list = new ArrayList<EventResponse>();
+
+        for(Event event : events){
+            list.add(new EventResponse(event.getDate().toString(), event, null));
+        }
+
+        return ResponseEntity.ok(list);
     }
 
     @GetMapping("/animals/all")
@@ -59,22 +63,28 @@ public class EventController {
 
         var resultList = animals.stream()
                 .flatMap(animal -> eventRepository.findByAnimalId(animal.getId()).stream())
-                .map(event -> new EventResponse(event.getDate().toString(), event))
+                .map(event -> new EventResponse(event.getDate().toString(), event, event.getAnimal()))
                 .sorted(Comparator.comparing(EventResponse::date))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(resultList);
     }
 
-    @GetMapping("{id}/animals/event/year")
+    @GetMapping("/{id}/animals/event/year")
     public ResponseEntity<List<Event>> getEventsByYear(@PathVariable UUID id, @RequestParam int year) {
         var events = eventService.getEventByYear(id, year);
         return ResponseEntity.ok(events);
     }
 
-    @GetMapping("{id}/animals/event/month")
+    @GetMapping("/{id}/animals/event/month")
     public ResponseEntity<List<Event>> getEventsByMonth(@PathVariable UUID id, @RequestParam int month) {
         var events = eventService.getEventByMonth(id, month);
         return ResponseEntity.ok(events);
+    }
+
+    @GetMapping("/{id}/animals/deprecated")
+    public ResponseEntity<List<Event>> getDeprecatedEvents(@PathVariable("id") UUID id){
+        var list = eventService.getDeprecatedEvents(id);
+        return ResponseEntity.ok(list);
     }
 }

@@ -26,7 +26,6 @@ public class Animal {
     private Double weight;
 
     @Type(type="org.hibernate.type.BinaryType")
-    @JsonIgnore
     private byte[] photo;
 
     @Column(name = "gender")
@@ -40,7 +39,6 @@ public class Animal {
     @OneToMany(mappedBy = "animal", fetch = FetchType.LAZY)
     private List<Event> events;
 
-
     public static Animal fromDto(AnimalRequest animalRequest, byte[] bytes){
         return Animal.builder()
                 .id(UUID.randomUUID())
@@ -52,5 +50,4 @@ public class Animal {
                 .animalGender(animalRequest.gender())
                 .build();
     }
-
 }
