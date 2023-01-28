@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -30,9 +30,7 @@ public class TopicController {
 
     @GetMapping
     public ResponseEntity<List<TopicResponse>> getAllTopics() {
-        var list = topicRepository.findAll();
-
-        Collections.sort(list);
+        var list = topicRepository.findAll().stream().sorted(Comparator.comparing(Topic::getCreationDate).reversed()).toList();
 
         var finalList = list.stream()
                 .map(topic -> {
@@ -40,7 +38,6 @@ public class TopicController {
                     return new TopicResponse(t, topic.getUser().getUsername(), topic.getUser().getPhoto());
                 })
                 .collect(Collectors.toList());
-
         return ResponseEntity.ok(finalList);
     }
 

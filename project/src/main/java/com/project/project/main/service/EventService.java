@@ -5,7 +5,6 @@ import com.project.project.main.model.Event;
 import com.project.project.main.model.EventDateRequest;
 import com.project.project.main.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -13,7 +12,6 @@ import java.time.ZoneId;
 import java.util.*;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class EventService {
 
@@ -25,13 +23,10 @@ public class EventService {
         var resultList = new ArrayList<Event>();
 
         allAnimalEvents.forEach(event -> {
-
             var date = getCalendarWithoutTime(event.getDate());
-
             if (eventDateRequest.date().compareTo(date.getTime().toString()) == 0) {
                 resultList.add(event);
             }
-
         });
 
         return resultList;
@@ -108,6 +103,24 @@ public class EventService {
                 matchingEvents.add(event);
             }
         }
+
+        return matchingEvents;
+    }
+
+    public List<Event> getDeprecatedEvents(UUID id) {
+        var eventList = eventRepository.findByAnimalId(id);
+
+        List<Event> matchingEvents = new ArrayList<>();
+
+        for (Event event : eventList) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(event.getDate());
+
+            if (getCalendarWithoutTime(calendar.getTime()).before(getCalendarWithoutTime(Calendar.getInstance().getTime()))) {
+                matchingEvents.add(event);
+            }
+        }
+        matchingEvents.sort(Comparator.comparing(Event::getDate).reversed());
 
         return matchingEvents;
     }

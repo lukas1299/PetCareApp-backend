@@ -1,7 +1,6 @@
 package com.project.project.main.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.project.project.collections.model.CollectionHistory;
 import com.project.project.forum.model.Post;
 import com.project.project.forum.model.Topic;
@@ -64,6 +63,9 @@ public class User {
     @JoinColumn(name = "id")
     @JsonIgnore
     private Profile profile;
+
+    @OneToMany(mappedBy = "user")
+    private List<QuizResult> quizResult;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     @JsonIgnore

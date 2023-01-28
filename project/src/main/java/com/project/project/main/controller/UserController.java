@@ -1,12 +1,8 @@
 package com.project.project.main.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.project.forum.model.Topic;
-import com.project.project.main.model.AnimalRequest;
 import com.project.project.main.model.User;
-
-import com.project.project.main.model.UserRequest;
 import com.project.project.main.model.UserUpdateRequest;
 import com.project.project.main.repository.UserRepository;
 import com.project.project.main.service.UserService;
@@ -76,8 +72,11 @@ public class UserController {
     }
 
     @GetMapping("/{name}/find")
-    public ResponseEntity<List<User>> findPeople(@PathVariable("name") String name) {
-        var list = userRepository.findAll().stream().filter(user -> user.getUsername().contains(name) || user.getEmail().contains(name)).toList();
+    public ResponseEntity<List<User>> findPeople(@PathVariable("name") String name, Authentication authentication) {
+        var me = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+        var list = userRepository.findAll().stream()
+                .filter(user -> user.getUsername().contains(name) || user.getEmail().contains(name))
+                .filter(user -> !user.getId().equals(me.getId())).toList();
         return ResponseEntity.ok(list);
     }
 

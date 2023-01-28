@@ -120,10 +120,12 @@ public class AnimalController {
     }
 
     @PostMapping("/{name}/find")
-    public ResponseEntity<?> findAnimal(@PathVariable(value = "name") String name) {
-        var list = animalRepository.findAll().stream()
-                .filter(animal -> animal.getName().toLowerCase().contains(name.toLowerCase()))
+    public ResponseEntity<?> findAnimal(@PathVariable(value = "name") String name, Authentication authentication) {
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+        var list = animalRepository.findByUser(user).stream()
+                .filter(animal -> animal.getName().toLowerCase().contains(name.toLowerCase()) || animal.getType().toString().toLowerCase().contains(name.toLowerCase()))
                 .toList();
+
         return ResponseEntity.ok(list);
     }
 }
