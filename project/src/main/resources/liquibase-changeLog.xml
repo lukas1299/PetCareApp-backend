@@ -24,5 +24,8 @@ http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd">
     <include file="db/changelog/database/01-create-quiz-questions.sql"/>
     <include file="db/changelog/database/01-create-quiz-answers.sql"/>
     <include file="db/changelog/database/01-create-quiz-results.sql"/>
-
+    <include file="db/changelog/database/01-create-competitions.sql"/>
+    <include file="db/changelog/database/01-create-competitions-details.sql"/>
+    <include file="db/changelog/database/01-create-competitions-result.sql"/>
+    <include file="db/changelog/database/01-create-competitions-details-assessment.sql"/>
 </databaseChangeLog>
