@@ -3,6 +3,7 @@ package com.project.project.main.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.project.main.exception.EntityAlreadyExistsException;
 import com.project.project.main.model.*;
+import com.project.project.main.repository.AnimalBreedRepository;
 import com.project.project.main.repository.AnimalRepository;
 import com.project.project.main.repository.EventRepository;
 import com.project.project.main.repository.UserRepository;
@@ -33,6 +34,7 @@ public class AnimalController {
     private final UserRepository userRepository;
     private final AnimalService animalService;
     private final EventRepository eventRepository;
+    private final AnimalBreedRepository animalBreedRepository;
     private final ObjectMapper objectMapper;
 
     @GetMapping
@@ -65,7 +67,8 @@ public class AnimalController {
 
         var requestAnimal = objectMapper.readValue(json, AnimalRequest.class);
         var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
-        var animal = animalService.createAnimal(requestAnimal, user, file);
+        var breed = animalBreedRepository.findByName(requestAnimal.breed()).orElseThrow(() -> new EntityNotFoundException("Breed does not exist"));
+        var animal = animalService.createAnimal(requestAnimal, user, file, breed);
         return new ResponseEntity<>(animal, HttpStatus.CREATED);
     }
 
@@ -74,10 +77,11 @@ public class AnimalController {
 
         var animal = animalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
         var requestAnimal = objectMapper.readValue(json, AnimalRequest.class);
+        var breed = animalBreedRepository.findByName(requestAnimal.breed()).orElseThrow(() -> new EntityNotFoundException("Breed does not exist"));
         animal.setName(requestAnimal.name());
         animal.setWeight(requestAnimal.weight());
         animal.setAge(requestAnimal.age());
-        animal.setType(requestAnimal.animalType());
+        animal.setAnimalBreed(breed);
         animal.setAnimalGender(requestAnimal.gender());
         animal.setPhoto(file.getBytes());
         animalRepository.save(animal);
@@ -89,15 +93,27 @@ public class AnimalController {
 
         var animal = animalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
         var tempEvent = eventRepository.findByNameAndAnimalId(eventRequest.name(), id);
-        if (!tempEvent.isEmpty()) {
-            throw new EntityAlreadyExistsException("Event already exists");
+
+        List<Event> event;
+
+        if (eventRequest.eventType() != EventType.VACCINATION) {
+            if (!tempEvent.isEmpty()) {
+                throw new EntityAlreadyExistsException("Event already exists");
+            }
         }
-        var event = animalService.addEventToAnimal(animal, eventRequest);
+        event = animalService.addEventToAnimal(animal, eventRequest);
+
         return new ResponseEntity<>(event, HttpStatus.CREATED);
     }
 
+    @GetMapping("/{id}/events/check")
+    public String checkVaccinationTime(@PathVariable UUID id){
+        var animal = animalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
+        return animalService.checkVaccinationTime(animal);
+    }
+
     @DeleteMapping("/events/delete")
-    public ResponseEntity<List<Event>> deleteEvent(@RequestBody EventDeleteRequest eventRequest) {
+    public ResponseEntity<List<Event>> deleteEvent(@RequestBody EventDeleteRequest eventRequest) throws Exception {
 
         return ResponseEntity.ok(animalService.removeEvents(eventRequest));
     }
@@ -123,7 +139,7 @@ public class AnimalController {
     public ResponseEntity<?> findAnimal(@PathVariable(value = "name") String name, Authentication authentication) {
         var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         var list = animalRepository.findByUser(user).stream()
-                .filter(animal -> animal.getName().toLowerCase().contains(name.toLowerCase()) || animal.getType().toString().toLowerCase().contains(name.toLowerCase()))
+                .filter(animal -> animal.getName().toLowerCase().contains(name.toLowerCase()) || animal.getAnimalBreed().getName().toLowerCase().contains(name.toLowerCase()))
                 .toList();
 
         return ResponseEntity.ok(list);

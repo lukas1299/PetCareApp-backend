@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -65,7 +64,7 @@ public class EventController {
                 .flatMap(animal -> eventRepository.findByAnimalId(animal.getId()).stream())
                 .map(event -> new EventResponse(event.getDate().toString(), event, event.getAnimal()))
                 .sorted(Comparator.comparing(EventResponse::date))
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(resultList);
     }
@@ -85,6 +84,11 @@ public class EventController {
     @GetMapping("/{id}/animals/deprecated")
     public ResponseEntity<List<Event>> getDeprecatedEvents(@PathVariable("id") UUID id){
         var list = eventService.getDeprecatedEvents(id);
+        return ResponseEntity.ok(list);
+    }
+    @GetMapping("/{id}/animals/upcoming")
+    public ResponseEntity<List<EventResponse>> getUpcomingEvents(@PathVariable("id") UUID id){
+        var list = eventService.getUpcomingEvents(id);
         return ResponseEntity.ok(list);
     }
 }

@@ -1,7 +1,6 @@
 package com.project.project.forum.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.project.project.main.model.User;
 import lombok.*;
 

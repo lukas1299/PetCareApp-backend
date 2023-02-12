@@ -3,6 +3,7 @@ package com.project.project.main.service;
 import com.project.project.main.model.Day;
 import com.project.project.main.model.Event;
 import com.project.project.main.model.EventDateRequest;
+import com.project.project.main.model.EventResponse;
 import com.project.project.main.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -123,6 +124,24 @@ public class EventService {
         matchingEvents.sort(Comparator.comparing(Event::getDate).reversed());
 
         return matchingEvents;
+    }
+
+    public List<EventResponse> getUpcomingEvents(UUID id) {
+        var eventList = eventRepository.findByAnimalId(id);
+
+        List<Event> matchingEvents = new ArrayList<>();
+
+        for (Event event : eventList) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(event.getDate());
+
+            if (getCalendarWithoutTime(Calendar.getInstance().getTime()).before(getCalendarWithoutTime(calendar.getTime()))) {
+                matchingEvents.add(event);
+            }
+        }
+        matchingEvents.sort(Comparator.comparing(Event::getDate));
+
+        return matchingEvents.stream().map(e -> new EventResponse(e.getDate().toString(), e, e.getAnimal())).toList();
     }
 
     private static Calendar getCalendarWithoutTime(Date date) {

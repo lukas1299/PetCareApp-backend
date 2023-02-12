@@ -1,9 +1,9 @@
 package com.project.project.main.service;
 
-
 import com.project.project.main.model.*;
 import com.project.project.main.repository.AnimalRepository;
 import com.project.project.main.repository.EventRepository;
+import com.project.project.main.repository.VaccinationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,10 +21,11 @@ public class AnimalService {
 
     private final EventRepository eventRepository;
     private final AnimalRepository animalRepository;
+    private final VaccinationRepository vaccinationRepository;
 
-    public Animal createAnimal(AnimalRequest animalRequest, User user, MultipartFile file) throws IOException {
+    public Animal createAnimal(AnimalRequest animalRequest, User user, MultipartFile file, AnimalBreed animalBreed) throws IOException {
 
-        var animal = Animal.fromDto(animalRequest, file.getBytes());
+        var animal = Animal.fromDto(animalRequest, file.getBytes(), animalBreed);
         animal.setUser(user);
 
         var userAnimalsList = user.getAnimals();
@@ -40,9 +41,40 @@ public class AnimalService {
         return animal;
     }
 
+    public String checkVaccinationTime(Animal animal) {
+        List<Event> finalList = new ArrayList<>();
+        var allVaccinations = vaccinationRepository.findAll();
+
+        for (Vaccination vaccination : allVaccinations) {
+            var latestVaccination = getTheLatestVaccination(animal.getId(), vaccination.getName());
+            if (!latestVaccination.isEmpty()) {
+                finalList.add(latestVaccination.get(latestVaccination.size() - 1));
+            }
+        }
+
+        Calendar now = Calendar.getInstance();
+        return finalList.stream()
+                .filter(event -> {
+                    Calendar nextVaccination = Calendar.getInstance();
+                    nextVaccination.setTime(event.getDate());
+                    VaccinationInterval interval = vaccinationRepository.findByName(event.getName().substring(0, event.getName().length() - 4)).get(0).getInterval();
+
+                    if (interval == VaccinationInterval.EVERY_HALF_YEAR) {
+                        nextVaccination.add(Calendar.MONTH, 6);
+                    } else if (interval == VaccinationInterval.EVERY_YEAR) {
+                        nextVaccination.add(Calendar.YEAR, 1);
+                    } else {
+                        nextVaccination.add(Calendar.YEAR, 2);
+                    }
+                    return nextVaccination.get(Calendar.MONTH) == now.get(Calendar.MONTH) && nextVaccination.get(Calendar.YEAR) == now.get(Calendar.YEAR);
+                })
+                .map(event -> event.getName().substring(0, event.getName().length() - 4))
+                .findFirst()
+                .orElse("");
+    }
+
     public List<Event> addEventToAnimal(Animal animal, EventRequest eventRequest) throws Exception {
         ZoneId defaultZoneId = ZoneId.systemDefault();
-        List<Event> tempEventList = new ArrayList<>();
 
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
@@ -53,50 +85,111 @@ public class AnimalService {
             throw new Exception("The event cannot be created because the date is invalid");
         }
 
-        LocalDate localDate = LocalDateTime.ofInstant(calendar.toInstant(), calendar.getTimeZone().toZoneId()).toLocalDate();
-
-        final int numDays = 90;
-        final int numWeeks = 12;
-        final int numMonths = 3;
-
-        switch (eventRequest.frequency()) {
-            case "once":
-                tempEventList.add(createEvent(animal, eventRequest, calendar.getTime()));
-                break;
-            case "everyday":
-                for (int i = 0; i <= numDays; i++) {
-                    var eventDate = Date.from(localDate.plusDays(i).atStartOfDay(defaultZoneId).toInstant());
-                    tempEventList.add(createEvent(animal, eventRequest, eventDate));
-                }
-                break;
-            case "everyweek":
-                for (int i = 0; i <= numWeeks; i++) {
-                    var eventDate = Date.from(localDate.plusWeeks(i).atStartOfDay(defaultZoneId).toInstant());
-                    tempEventList.add(createEvent(animal, eventRequest, eventDate));
-                }
-                break;
-            case "everymonth":
-                for (int i = 0; i <= numMonths; i++) {
-                    var eventDate = Date.from(localDate.plusMonths(i).atStartOfDay(defaultZoneId).toInstant());
-                    tempEventList.add(createEvent(animal, eventRequest, eventDate));
-                }
-                break;
-        }
-
-        return tempEventList;
+        return createEvent(animal, eventRequest, calendar.getTime());
     }
 
-    public List<Event> removeEvents(EventDeleteRequest eventDeleteRequest) {
+    public List<Event> removeEvents(EventDeleteRequest eventDeleteRequest) throws Exception {
 
         var eventList = eventRepository.findByNameAndAnimalId(eventDeleteRequest.name(), eventDeleteRequest.animalId());
+        if (eventList.get(0).getEventType() == EventType.VACCINATION) {
+            var vaccination = eventList.get(0);
 
-        eventRepository.deleteAll(eventList);
+            Calendar currentCalendar = Calendar.getInstance();
+
+            Calendar vaccinationCalendar = Calendar.getInstance();
+            vaccinationCalendar.setTime(vaccination.getDate());
+
+            if (vaccinationCalendar.before(currentCalendar)) {
+                throw new Exception("Vaccinations that have already taken place cannot be removed");
+            }
+            eventRepository.delete(vaccination);
+
+        } else {
+            eventRepository.deleteAll(eventList);
+        }
 
         return eventList;
     }
 
-    private Event createEvent(Animal animal, EventRequest eventRequest, Date date) {
-        var event = Event.fromDto(eventRequest);
+    private List<Event> createEvent(Animal animal, EventRequest eventRequest, Date date) throws Exception {
+
+        List<Event> result = new ArrayList<>();
+        Event event;
+
+        if (eventRequest.eventType() == EventType.VACCINATION) {
+
+            if (vaccinationRepository.findByName(eventRequest.name()).isEmpty()) {
+                throw new Exception("Vaccination does not exist");
+            }
+
+            var finishedVaccination = getTheLatestVaccination(animal.getId(), eventRequest.name());
+            if (finishedVaccination.isEmpty()) {
+                event = new Event(UUID.randomUUID(), prepareEventName(animal, eventRequest.name()), date, eventRequest.eventType(), animal);
+                result.add(saveEvent(event, animal, date));
+            } else {
+                var lastEvent = finishedVaccination.get(finishedVaccination.size() - 1);
+                var vaccination = vaccinationRepository.findByName(lastEvent.getName().substring(0, lastEvent.getName().length() - 4)).get(0);
+
+                if (checkExpiration(vaccination, lastEvent, date)) {
+                    throw new Exception("Vaccination cannot take place during this time");
+                } else {
+                    event = new Event(UUID.randomUUID(), prepareEventName(animal, eventRequest.name()), date, eventRequest.eventType(), animal);
+                    result.add(saveEvent(event, animal, date));
+                }
+            }
+        } else {
+
+            ZoneId defaultZoneId = ZoneId.systemDefault();
+            List<Event> tempEventList = new ArrayList<>();
+
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+            calendar.setTimeZone(TimeZone.getTimeZone(defaultZoneId));
+            calendar.setTime(sdf.parse(eventRequest.date()));
+
+            if (getCalendarWithoutTime(calendar.getTime()).before(getCalendarWithoutTime(Calendar.getInstance().getTime()))) {
+                throw new Exception("The event cannot be created because the date is invalid");
+            }
+
+            LocalDate localDate = LocalDateTime.ofInstant(calendar.toInstant(), calendar.getTimeZone().toZoneId()).toLocalDate();
+
+            event = Event.fromDto(eventRequest);
+
+            switch (eventRequest.frequency()) {
+                case "once":
+                    tempEventList.add(saveEvent(event, animal, calendar.getTime()));
+                    break;
+                case "everyday":
+                    for (int i = 0; i <= 90; i++) {
+                        var eventDate = Date.from(localDate.plusDays(i).atStartOfDay(defaultZoneId).toInstant());
+                        tempEventList.add(saveEvent(event, animal, eventDate));
+                    }
+                    break;
+                case "everyweek":
+                    for (int i = 0; i <= 12; i++) {
+                        var eventDate = Date.from(localDate.plusWeeks(i).atStartOfDay(defaultZoneId).toInstant());
+                        tempEventList.add(saveEvent(event, animal, eventDate));
+                    }
+                    break;
+                case "everymonth":
+                    for (int i = 0; i <= 3; i++) {
+                        var eventDate = Date.from(localDate.plusMonths(i).atStartOfDay(defaultZoneId).toInstant());
+                        tempEventList.add(saveEvent(event, animal, eventDate));
+                    }
+                    break;
+            }
+            result = tempEventList;
+        }
+
+        return result;
+    }
+
+    private Event saveEvent(Event e, Animal animal, Date date) {
+        Event event = new Event();
+        event.setId(UUID.randomUUID());
+        event.setAnimal(e.getAnimal());
+        event.setName(e.getName());
+        event.setEventType(e.getEventType());
         event.setDate(date);
         event.setAnimal(animal);
 
@@ -107,7 +200,45 @@ public class AnimalService {
         animal.setEvents(eventList);
 
         animalRepository.save(animal);
+
         return event;
+    }
+
+    private boolean checkExpiration(Vaccination v, Event e, Date date) {
+        Calendar event = Calendar.getInstance();
+        event.setTime(e.getDate());
+        Calendar check = Calendar.getInstance();
+        check.setTime(date);
+        if (v.getInterval() == VaccinationInterval.EVERY_HALF_YEAR) {
+            event.add(Calendar.MONTH, 6);
+        } else if (v.getInterval() == VaccinationInterval.EVERY_YEAR) {
+            event.add(Calendar.YEAR, 1);
+        } else {
+            event.add(Calendar.YEAR, 2);
+        }
+        return check.before(event);
+    }
+
+    public String prepareEventName(Animal animal, String name) {
+        List<Event> vaccinations = getTheLatestVaccination(animal.getId(), name);
+
+        if (vaccinations.isEmpty()) {
+            return name + " (1)";
+        }
+
+        Event latestEvent = vaccinations.get(vaccinations.size() - 1);
+        String eventName = latestEvent.getName();
+        int count = Integer.parseInt(eventName.substring(eventName.length() - 2, eventName.length() - 1));
+        return eventName.substring(0, eventName.length() - 3) + "(" + (count + 1) + ")";
+    }
+
+    private List<Event> getTheLatestVaccination(UUID id, String name) {
+        return eventRepository.findByAnimalId(id)
+                .stream()
+                .filter(event -> event.getEventType() == EventType.VACCINATION)
+                .filter(event -> event.getName().contains(name))
+                .sorted(Comparator.comparingInt(o -> o.getName().charAt(o.getName().length() - 2)))
+                .toList();
     }
 
     private static Calendar getCalendarWithoutTime(Date date) {

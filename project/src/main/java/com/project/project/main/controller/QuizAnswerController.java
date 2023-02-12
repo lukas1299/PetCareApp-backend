@@ -38,5 +38,4 @@ public class QuizAnswerController {
         quizQuestionRepository.save(question);
         return ResponseEntity.ok(answer);
     }
-
 }

@@ -33,6 +33,9 @@ public class Profile {
     @OneToMany(mappedBy = "profile", fetch = FetchType.LAZY)
     private List<SocialPost> socialPosts;
 
+    @OneToMany(mappedBy = "profile")
+    private List<CompetitionDetailsAssessment> competitionDetailsAssessment;
+
     public static Profile fromDto(User user){
         return Profile.builder()
                 .id(UUID.randomUUID())

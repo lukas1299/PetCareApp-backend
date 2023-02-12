@@ -1,6 +1,6 @@
 package com.project.project.main.model;
 
-public record AnimalRequest(String name, AnimalType animalType, int age, double weight, AnimalGender gender){
+public record AnimalRequest(String name, String breed, int age, double weight, AnimalGender gender){
 
 }
 
