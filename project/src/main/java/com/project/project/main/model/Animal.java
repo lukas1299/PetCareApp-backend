@@ -21,7 +21,6 @@ public class Animal {
     private UUID id;
 
     private String name;
-    private AnimalType type;
     private int age;
     private Double weight;
 
@@ -39,11 +38,15 @@ public class Animal {
     @OneToMany(mappedBy = "animal", fetch = FetchType.LAZY)
     private List<Event> events;
 
-    public static Animal fromDto(AnimalRequest animalRequest, byte[] bytes){
+    @ManyToOne
+    @JoinColumn(name = "animal_breed_id")
+    private AnimalBreed animalBreed;
+
+    public static Animal fromDto(AnimalRequest animalRequest, byte[] bytes, AnimalBreed animalBreed){
         return Animal.builder()
                 .id(UUID.randomUUID())
                 .name(animalRequest.name())
-                .type(animalRequest.animalType())
+                .animalBreed(animalBreed)
                 .age(animalRequest.age())
                 .weight(animalRequest.weight())
                 .photo(bytes)

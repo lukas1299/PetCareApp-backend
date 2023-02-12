@@ -4,14 +4,12 @@ import com.project.project.forum.model.RequestTopic;
 import com.project.project.forum.model.Topic;
 import com.project.project.forum.repository.TopicRepository;
 import com.project.project.main.model.User;
-import com.project.project.main.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

@@ -17,7 +17,9 @@ http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd">
     <include file="db/changelog/database/01-create-collection-history.sql"/>
     <include file="db/changelog/database/01-create-topic.sql"/>
     <include file="db/changelog/database/01-create-post.sql"/>
+    <include file="db/changelog/database/01-create-animal-breed.sql"/>
     <include file="db/changelog/database/01-create-animal.sql"/>
+    <include file="db/changelog/database/01-create-animal-facts.sql"/>
     <include file="db/changelog/database/01-create-event.sql"/>
     <include file="db/changelog/database/01-create-social-post-assessment.sql"/>
     <include file="db/changelog/database/01-create-quiz.sql"/>
@@ -28,4 +30,13 @@ http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd">
     <include file="db/changelog/database/01-create-competitions-details.sql"/>
     <include file="db/changelog/database/01-create-competitions-result.sql"/>
     <include file="db/changelog/database/01-create-competitions-details-assessment.sql"/>
+    <include file="db/changelog/database/01-create-vaccination.sql"/>
+    <include file="db/changelog/database/01-create-news.sql"/>
+    <include file="db/changelog/database/01-create-news-paragraph.sql"/>
+
+<!--    import date-->
+
+    <include file="db/changelog/database/import/insert-news.sql"/>
+    <include file="db/changelog/database/import/insert-news-paragraph.sql"/>
+
 </databaseChangeLog>

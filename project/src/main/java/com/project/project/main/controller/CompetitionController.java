@@ -2,10 +2,7 @@ package com.project.project.main.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.project.main.exception.ObjectNotFoundException;
-import com.project.project.main.model.Competition;
-import com.project.project.main.model.CompetitionDetails;
-import com.project.project.main.model.CompetitionDetailsAssessment;
-import com.project.project.main.model.CompetitionRequest;
+import com.project.project.main.model.*;
 import com.project.project.main.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,12 +50,28 @@ public class CompetitionController {
         return ResponseEntity.ok(details);
     }
 
+    @GetMapping("/finished")
+    public ResponseEntity<List<CompetitionResult>> getCompetitionsResults(){
+        return ResponseEntity.ok(competitionResultRepository.findAll());
+    }
+
     @PostMapping("/add")
     public ResponseEntity<Competition> createCompetition(@RequestParam("file") MultipartFile file, @RequestParam("json") String json) throws IOException {
 
         var competition = Competition.fromDto(objectMapper.readValue(json, CompetitionRequest.class).title(), file);
         competitionRepository.save(competition);
         return ResponseEntity.ok(competition);
+    }
+
+    @PostMapping("/{id}/finish")
+    public void finishCompetition(@PathVariable("id") UUID id) throws Exception {
+        var competition = competitionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Competition does not exist"));
+        var competitionDetail = competitionDetailsRepository.findByCompetition(competition).stream().max(Comparator.comparing(CompetitionDetails::getPoints)).get();
+        var result = competitionResultRepository.findByCompetition(competition);
+        if(result.isPresent()){
+            throw new Exception("The competition is now over");
+        }
+        competitionResultRepository.save(CompetitionResult.fromDto(competition, competitionDetail));
     }
 
     @PostMapping("/{id}/details/add")
