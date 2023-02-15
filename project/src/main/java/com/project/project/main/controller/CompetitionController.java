@@ -36,7 +36,8 @@ public class CompetitionController {
 
     @GetMapping
     public ResponseEntity<List<Competition>> getAllCompetitions() {
-        var competitions = competitionRepository.findAll();
+        var competitions = competitionRepository.findAll().stream().filter(competition -> !competition.isFinished()).toList();
+
         return ResponseEntity.ok(competitions);
     }
 
@@ -71,6 +72,8 @@ public class CompetitionController {
         if(result.isPresent()){
             throw new Exception("The competition is now over");
         }
+        competition.setFinished(true);
+        competitionRepository.save(competition);
         competitionResultRepository.save(CompetitionResult.fromDto(competition, competitionDetail));
     }
 

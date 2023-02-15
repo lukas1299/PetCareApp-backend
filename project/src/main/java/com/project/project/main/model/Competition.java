@@ -23,6 +23,7 @@ public class Competition {
     private UUID id;
 
     private String title;
+    private boolean finished;
 
     @Type(type = "org.hibernate.type.BinaryType")
     private byte[] photo;

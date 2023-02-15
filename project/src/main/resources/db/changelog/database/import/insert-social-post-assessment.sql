@@ -1,0 +1,5 @@
+INSERT INTO public.social_posts_assessment (id,social_post_id,profile_id) VALUES
+	 ('e5643b3f-663a-4824-90a5-349fae9524d8','cebbed14-acdc-4145-8315-ae45461594cb','de15e790-aa46-4cdd-ae51-52b74077c93b'),
+	 ('6597407a-5f31-4709-8c29-a7d71f8bbc5b','4a7241d1-91e2-4747-9fe5-605ff16b1328','de15e790-aa46-4cdd-ae51-52b74077c93b'),
+	 ('b4009a10-54ff-4168-8db2-744e86184900','7b929a64-56e9-434a-8286-8c01f229f440','635262cf-10ff-44e2-9d5c-17be2c2416fa'),
+	 ('880d148f-c527-4dda-9151-6635ffb9d489','7b929a64-56e9-434a-8286-8c01f229f440','de15e790-aa46-4cdd-ae51-52b74077c93b');

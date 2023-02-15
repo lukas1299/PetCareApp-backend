@@ -3,7 +3,7 @@
 --changeset vlplanner:2
 CREATE TABLE IF NOT EXISTS quiz_answers(
    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-   answer VARCHAR(64),
+   answer VARCHAR(512),
    correctness boolean,
    question_id UUID);
 

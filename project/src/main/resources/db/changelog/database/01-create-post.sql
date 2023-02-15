@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS posts(
    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-   message VARCHAR(32),
+   message VARCHAR(512),
    negative_opinion_amount INT,
    positive_opinion_amount INT,
    post_creation_date VARCHAR(32),

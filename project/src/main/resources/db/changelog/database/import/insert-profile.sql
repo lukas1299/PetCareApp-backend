@@ -1,0 +1,11 @@
+INSERT INTO public.profiles (id,user_id) VALUES
+	 ('de15e790-aa46-4cdd-ae51-52b74077c93b','5c146c5e-0a01-4eb5-8251-d8d30d8cad06'),
+	 ('635262cf-10ff-44e2-9d5c-17be2c2416fa','f7c2271b-7b2a-4c0a-8501-142d0aebbb37'),
+	 ('2106e496-10d0-4b8f-bdb2-06159720a503','99c314ea-b58e-41e1-a7b5-befb62666898'),
+	 ('24ea0bdd-5610-4fed-8943-42c632ca5829','d0b0ea3d-2e23-469e-a315-145718b36543'),
+	 ('c3652074-59d5-4f29-ac2f-82a6f8736e6f','2ea346c5-9716-413e-8ab2-c4d3c030758c'),
+	 ('a1ebbd0c-670c-4b7c-afc7-5f76d8151cce','ce43818b-1fa4-4fe2-a683-ef277888559c'),
+	 ('771d6cf8-99de-4a78-b887-57232c20fd55','005f69d7-5053-45cd-bd3b-b58c5ba83efd'),
+	 ('adf03123-8f7e-4635-b6aa-eb5cbfce8569','7b163ad6-4e52-4e0a-97fb-84aa1e8202d9'),
+	 ('4eb25620-6b17-4bfc-b3c0-e84715656545','ef27d3ee-c9ee-488a-9af6-27276557abcf'),
+	 ('de594b59-3c6b-4199-b5d3-15ac1a976e22','2c1d7bcf-da1b-430d-81b6-315cee673676');

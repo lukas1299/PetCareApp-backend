@@ -86,9 +86,24 @@ public class EventController {
         var list = eventService.getDeprecatedEvents(id);
         return ResponseEntity.ok(list);
     }
+
     @GetMapping("/{id}/animals/upcoming")
     public ResponseEntity<List<EventResponse>> getUpcomingEvents(@PathVariable("id") UUID id){
         var list = eventService.getUpcomingEvents(id);
+        return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/animals/upcoming")
+    public ResponseEntity<List<EventResponse>> getUpcomingEventByUserAnimals(Authentication authentication){
+        var user = userRepository.findByUsernameOrEmail(authentication.getName(), null).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+        var animals = user.getAnimals();
+
+        List<EventResponse> list = new ArrayList<>();
+
+        animals.forEach(animal -> list.addAll(eventService.getUpcomingEvents(animal.getId())));
+
+        list.sort(Comparator.comparing(EventResponse::date));
+
         return ResponseEntity.ok(list);
     }
 }

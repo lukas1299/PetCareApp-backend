@@ -5,10 +5,12 @@ import com.project.project.main.repository.AnimalRepository;
 import com.project.project.main.repository.EventRepository;
 import com.project.project.main.repository.VaccinationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,6 +18,7 @@ import java.time.ZoneId;
 import java.util.*;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AnimalService {
 
@@ -41,7 +44,7 @@ public class AnimalService {
         return animal;
     }
 
-    public String checkVaccinationTime(Animal animal) {
+    public VaccinationResponse checkVaccinationTime(Animal animal) throws ParseException {
         List<Event> finalList = new ArrayList<>();
         var allVaccinations = vaccinationRepository.findAll();
 
@@ -53,7 +56,7 @@ public class AnimalService {
         }
 
         Calendar now = Calendar.getInstance();
-        return finalList.stream()
+        var list =  finalList.stream()
                 .filter(event -> {
                     Calendar nextVaccination = Calendar.getInstance();
                     nextVaccination.setTime(event.getDate());
@@ -68,9 +71,51 @@ public class AnimalService {
                     }
                     return nextVaccination.get(Calendar.MONTH) == now.get(Calendar.MONTH) && nextVaccination.get(Calendar.YEAR) == now.get(Calendar.YEAR);
                 })
-                .map(event -> event.getName().substring(0, event.getName().length() - 4))
+                .map(event -> {
+                    VaccinationInterval interval = vaccinationRepository.findByName(event.getName().substring(0, event.getName().length() - 4)).get(0).getInterval();
+                    Calendar calendar = Calendar.getInstance();
+                    Calendar calendar1 = Calendar.getInstance();
+                    calendar.setTime(event.getDate());
+                    calendar1.setTime(event.getDate());
+                    if (interval == VaccinationInterval.EVERY_HALF_YEAR) {
+                        calendar.add(Calendar.MONTH, 6);
+                        calendar1.add(Calendar.MONTH, 6);
+                    } else if (interval == VaccinationInterval.EVERY_YEAR) {
+                        calendar.add(Calendar.YEAR, 1);
+                        calendar1.add(Calendar.YEAR, 1);
+                    } else {
+                        calendar.add(Calendar.YEAR, 2);
+                        calendar1.add(Calendar.YEAR, 2);
+                    }
+
+                    calendar.add(Calendar.MONTH, 1);
+
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String maxData = dateFormat.format(calendar.getTime());
+                    String minData = dateFormat.format(calendar1.getTime());
+
+                    return new VaccinationResponse(event.getName().substring(0, event.getName().length() - 4), minData, maxData);
+                })
                 .findFirst()
-                .orElse("");
+                .orElse(new VaccinationResponse("", "", ""));
+
+        if(!Objects.equals(list.name(), "")){
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            Date date = dateFormat.parse(list.minDate());
+            Calendar vacDate = Calendar.getInstance();
+            vacDate.setTime(date);
+            if (vacDate.before(Calendar.getInstance())){
+                Calendar currentDate = Calendar.getInstance();
+                Calendar currentDatePlusMonth = Calendar.getInstance();
+                currentDatePlusMonth.add(Calendar.MONTH, 1);
+
+                return new VaccinationResponse(list.name(),dateFormat.format(currentDate.getTime()), dateFormat.format(currentDatePlusMonth.getTime()));
+            }
+            log.warn(vacDate.getTime().toString());
+        }
+        return list;
     }
 
     public List<Event> addEventToAnimal(Animal animal, EventRequest eventRequest) throws Exception {

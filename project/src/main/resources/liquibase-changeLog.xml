@@ -17,6 +17,7 @@ http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd">
     <include file="db/changelog/database/01-create-collection-history.sql"/>
     <include file="db/changelog/database/01-create-topic.sql"/>
     <include file="db/changelog/database/01-create-post.sql"/>
+    <include file="db/changelog/database/01-create-post-assessment.sql"/>
     <include file="db/changelog/database/01-create-animal-breed.sql"/>
     <include file="db/changelog/database/01-create-animal.sql"/>
     <include file="db/changelog/database/01-create-animal-facts.sql"/>
@@ -36,7 +37,33 @@ http://www.liquibase.org/xml/ns/pro/liquibase-pro-3.8.xsd">
 
 <!--    import date-->
 
+    <include file="db/changelog/database/import/insert-role.sql"/>
+    <include file="db/changelog/database/import/insert-user.sql"/>
+    <include file="db/changelog/database/import/insert-role-user.sql"/>
+    <include file="db/changelog/database/import/insert-profile.sql"/>
+    <include file="db/changelog/database/import/insert-friend.sql"/>
+    <include file="db/changelog/database/import/insert-animal-breed.sql"/>
+    <include file="db/changelog/database/import/insert-animal.sql"/>
+    <include file="db/changelog/database/import/insert-animal-facts.sql"/>
+    <include file="db/changelog/database/import/insert-event.sql"/>
+    <include file="db/changelog/database/import/insert-social-post.sql"/>
+    <include file="db/changelog/database/import/insert-social-post-assessment.sql"/>
+    <include file="db/changelog/database/import/insert-vaccination.sql"/>
     <include file="db/changelog/database/import/insert-news.sql"/>
     <include file="db/changelog/database/import/insert-news-paragraph.sql"/>
+    <include file="db/changelog/database/import/insert-topic.sql"/>
+    <include file="db/changelog/database/import/insert-collection.sql"/>
+    <include file="db/changelog/database/import/insert-collection-history.sql"/>
+    <include file="db/changelog/database/import/insert-quiz.sql"/>
+    <include file="db/changelog/database/import/insert-quiz-question.sql"/>
+    <include file="db/changelog/database/import/insert-quiz-answer.sql"/>
+    <include file="db/changelog/database/import/insert-post.sql"/>
+    <include file="db/changelog/database/import/insert-post-comment.sql"/>
+    <include file="db/changelog/database/import/insert-post-assessment.sql"/>
+    <include file="db/changelog/database/import/insert-quiz-result.sql"/>
+    <include file="db/changelog/database/import/insert-competition.sql"/>
+    <include file="db/changelog/database/import/insert-competition-detail.sql"/>
+    <include file="db/changelog/database/import/insert-competition-detail-assessment.sql"/>
+    <include file="db/changelog/database/import/insert-competition-result.sql"/>
 
 </databaseChangeLog>
