@@ -65,6 +65,7 @@ public class User {
     private Profile profile;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<QuizResult> quizResult;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
