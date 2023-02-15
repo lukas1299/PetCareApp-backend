@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.UUID;
 
@@ -107,7 +108,7 @@ public class AnimalController {
     }
 
     @GetMapping("/{id}/events/check")
-    public String checkVaccinationTime(@PathVariable UUID id){
+    public VaccinationResponse checkVaccinationTime(@PathVariable UUID id) throws ParseException {
         var animal = animalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
         return animalService.checkVaccinationTime(animal);
     }
