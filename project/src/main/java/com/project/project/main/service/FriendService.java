@@ -1,9 +1,6 @@
 package com.project.project.main.service;
 
-import com.project.project.main.model.Friend;
-import com.project.project.main.model.FriendStatus;
-import com.project.project.main.model.Profile;
-import com.project.project.main.model.User;
+import com.project.project.main.model.*;
 import com.project.project.main.repository.FriendRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

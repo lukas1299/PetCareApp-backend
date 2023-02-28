@@ -78,12 +78,9 @@ public class AnimalController {
 
         var animal = animalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Animal does not exists"));
         var requestAnimal = objectMapper.readValue(json, AnimalRequest.class);
-        var breed = animalBreedRepository.findByName(requestAnimal.breed()).orElseThrow(() -> new EntityNotFoundException("Breed does not exist"));
         animal.setName(requestAnimal.name());
         animal.setWeight(requestAnimal.weight());
         animal.setAge(requestAnimal.age());
-        animal.setAnimalBreed(breed);
-        animal.setAnimalGender(requestAnimal.gender());
         animal.setPhoto(file.getBytes());
         animalRepository.save(animal);
         return new ResponseEntity<>(animal, HttpStatus.OK);
@@ -97,7 +94,7 @@ public class AnimalController {
 
         List<Event> event;
 
-        if (eventRequest.eventType() != EventType.VACCINATION) {
+        if (eventRequest.eventType() != EventType.SZCZEPIENIE) {
             if (!tempEvent.isEmpty()) {
                 throw new EntityAlreadyExistsException("Event already exists");
             }

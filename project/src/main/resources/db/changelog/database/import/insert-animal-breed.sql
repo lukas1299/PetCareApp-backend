@@ -1,6 +1,6 @@
 INSERT INTO public.animal_breed (id,"name") VALUES
-	 ('8ab7a6b5-1c1d-4499-9a1d-9faabe864639','no breed'),
-	 ('62c7db48-9c8d-4ca8-a9a8-48364105ac4c','mixed breed'),
+	 ('8ab7a6b5-1c1d-4499-9a1d-9faabe864639','brak'),
+	 ('62c7db48-9c8d-4ca8-a9a8-48364105ac4c','mieszaniec'),
 	 ('2f17f1aa-cf0c-4aa8-8321-a70def6cb2f2','beagle'),
 	 ('6ef10418-503e-4370-8704-4a6e62971a64','bulldog'),
 	 ('7ab9dde0-caaf-429a-8cc8-f16afd8d8753','chihuahua'),
