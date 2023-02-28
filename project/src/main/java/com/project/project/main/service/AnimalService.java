@@ -136,7 +136,7 @@ public class AnimalService {
     public List<Event> removeEvents(EventDeleteRequest eventDeleteRequest) throws Exception {
 
         var eventList = eventRepository.findByNameAndAnimalId(eventDeleteRequest.name(), eventDeleteRequest.animalId());
-        if (eventList.get(0).getEventType() == EventType.VACCINATION) {
+        if (eventList.get(0).getEventType() == EventType.SZCZEPIENIE) {
             var vaccination = eventList.get(0);
 
             Calendar currentCalendar = Calendar.getInstance();
@@ -161,7 +161,7 @@ public class AnimalService {
         List<Event> result = new ArrayList<>();
         Event event;
 
-        if (eventRequest.eventType() == EventType.VACCINATION) {
+        if (eventRequest.eventType() == EventType.SZCZEPIENIE) {
 
             if (vaccinationRepository.findByName(eventRequest.name()).isEmpty()) {
                 throw new Exception("Vaccination does not exist");
@@ -280,7 +280,7 @@ public class AnimalService {
     private List<Event> getTheLatestVaccination(UUID id, String name) {
         return eventRepository.findByAnimalId(id)
                 .stream()
-                .filter(event -> event.getEventType() == EventType.VACCINATION)
+                .filter(event -> event.getEventType() == EventType.SZCZEPIENIE)
                 .filter(event -> event.getName().contains(name))
                 .sorted(Comparator.comparingInt(o -> o.getName().charAt(o.getName().length() - 2)))
                 .toList();

@@ -34,6 +34,7 @@ public class Profile {
     private List<SocialPost> socialPosts;
 
     @OneToMany(mappedBy = "profile")
+    @JsonIgnore
     private List<CompetitionDetailsAssessment> competitionDetailsAssessment;
 
     public static Profile fromDto(User user){
